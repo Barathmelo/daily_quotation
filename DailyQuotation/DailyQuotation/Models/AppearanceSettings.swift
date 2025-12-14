@@ -9,7 +9,7 @@ enum FontFamily: String, Codable, CaseIterable {
         switch self {
         case .serif: return "Classic"
         case .sans: return "Modern"
-        case .mono: return "Type"
+        case .mono: return "Type"     
         }
     }
 }

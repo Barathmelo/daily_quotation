@@ -1,7 +1,99 @@
 import Foundation
+import SwiftUI
 
 struct LocalQuotes {
-    static let quotes: [Quote] = [
+    static let quotes: [Quote] = {
+        if let loaded = loadQuotesFromAsset(), !loaded.isEmpty {
+            return loaded
+        }
+        return fallbackQuotes
+    }()
+    
+    static func getQuotes(count: Int? = nil) -> [Quote] {
+        if let count = count {
+            return Array(quotes.prefix(count))
+        }
+        return quotes
+    }
+    
+    // 支持无限循环：获取指定索引的名言（循环）
+    static func getQuote(at index: Int) -> Quote {
+        return quotes[index % quotes.count]
+    }
+}
+
+// MARK: - Loading
+private extension LocalQuotes {
+    static func loadQuotesFromAsset() -> [Quote]? {
+        guard let dataAsset = NSDataAsset(name: "quotes") else {
+            return nil
+        }
+        
+        do {
+            let records = try JSONDecoder().decode([QuoteRecord].self, from: dataAsset.data)
+            let mapped = records.compactMap { $0.toQuote() }
+            return mapped.isEmpty ? nil : mapped
+        } catch {
+            print("Failed to decode quotes.json: \(error)")
+            return nil
+        }
+    }
+    
+    static func normalizedCategory(from record: QuoteRecord) -> String? {
+        if let explicit = cleaned(record.category) {
+            return formatted(category: explicit)
+        }
+        
+        guard let tags = record.tags else { return nil }
+        for tag in tags {
+            guard let cleanedTag = cleaned(tag) else { continue }
+            if cleanedTag.contains("-") || cleanedTag.contains("_") { continue }
+            return formatted(category: cleanedTag)
+        }
+        return nil
+    }
+    
+    static func cleaned(_ value: String?) -> String? {
+        guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !trimmed.isEmpty else {
+            return nil
+        }
+        return trimmed
+    }
+    
+    static func formatted(category: String) -> String {
+        category.capitalized
+    }
+    
+    struct QuoteRecord: Decodable {
+        let quote: String
+        let author: String
+        let tags: [String]?
+        let category: String?
+        
+        enum CodingKeys: String, CodingKey {
+            case quote = "Quote"
+            case author = "Author"
+            case tags = "Tags"
+            case category = "Category"
+        }
+        
+        func toQuote() -> Quote? {
+            let trimmedQuote = quote.trimmingCharacters(in: .whitespacesAndNewlines)
+            let trimmedAuthor = author.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedQuote.isEmpty, !trimmedAuthor.isEmpty else { return nil }
+            
+            let categoryValue = LocalQuotes.normalizedCategory(from: self)
+            return Quote(
+                id: UUID().uuidString,
+                text: trimmedQuote,
+                author: trimmedAuthor,
+                category: categoryValue
+            )
+        }
+    }
+    
+    static let fallbackQuotes: [Quote] = [
         Quote(
             id: "local-1",
             text: "Every moment is a fresh beginning.",
@@ -123,17 +215,5 @@ struct LocalQuotes {
             category: "Dreams"
         )
     ]
-    
-    static func getQuotes(count: Int? = nil) -> [Quote] {
-        if let count = count {
-            return Array(quotes.prefix(count))
-        }
-        return quotes
-    }
-    
-    // 支持无限循环：获取指定索引的名言（循环）
-    static func getQuote(at index: Int) -> Quote {
-        return quotes[index % quotes.count]
-    }
 }
 

@@ -48,7 +48,7 @@ struct FavoritesListView: View {
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 16)
-                    .padding(.top, 16)
+                    .padding(.top, 80)
                 
                 ForEach(favoritesManager.favorites) { quote in
                     favoriteCard(quote: quote)
@@ -95,7 +95,7 @@ struct FavoritesListView: View {
                         .frame(width: 36, height: 36)
                         .background(
                             Circle()
-                                .fill(Color.red.opacity(0.1))
+                                .fill(Color.red.opacity(0.15))
                         )
                 }
             }
@@ -103,7 +103,7 @@ struct FavoritesListView: View {
         .padding(24)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(white: 0.1).opacity(0.5))
+                .fill(Color(white: 0.1).opacity(0.7))
                 .background(
                     RoundedRectangle(cornerRadius: 16)
                         .fill(.ultraThinMaterial)
@@ -118,11 +118,11 @@ struct FavoritesListView: View {
     private var fontForAppearance: Font {
         switch appearance.font {
         case .serif:
-            return .system(size: 18, design: .serif)
+            return .system(size: 20, design: .serif)
         case .sans:
-            return .system(size: 18, design: .rounded)
+            return .system(size: 20, design: .rounded)
         case .mono:
-            return .system(size: 18, design: .monospaced)
+            return .system(size: 20, design: .monospaced)
         }
     }
 }

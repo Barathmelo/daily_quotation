@@ -6,14 +6,78 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FA1929112EED99FA00E2E976 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA1929102EED99FA00E2E976 /* StoreKit.framework */; };
+		FA4DAD8B2EE5C0F9007E97CD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA4DAD8A2EE5C0F9007E97CD /* WidgetKit.framework */; };
+		FA4DAD8D2EE5C0F9007E97CD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA4DAD8C2EE5C0F9007E97CD /* SwiftUI.framework */; };
+		FA4DAD9E2EE5C0FA007E97CD /* DailyQuotationWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FA4DAD882EE5C0F9007E97CD /* DailyQuotationWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		FA4DAD9C2EE5C0FA007E97CD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FA3806C92EE3D76A00DBD69D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FA4DAD872EE5C0F9007E97CD;
+			remoteInfo = DailyQuotationWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		FA4DADA32EE5C0FA007E97CD /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				FA4DAD9E2EE5C0FA007E97CD /* DailyQuotationWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		FA1929102EED99FA00E2E976 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		FA3806D12EE3D76A00DBD69D /* DailyQuotation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DailyQuotation.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA4DAD882EE5C0F9007E97CD /* DailyQuotationWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DailyQuotationWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA4DAD8A2EE5C0F9007E97CD /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		FA4DAD8C2EE5C0F9007E97CD /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		FAA7B2092EE7436D0043501A /* DailyQuotationWidgetExtensionRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DailyQuotationWidgetExtensionRelease.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		FA3807012EE3DA6200DBD69D /* Exceptions for "DailyQuotation" folder in "DailyQuotation" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = FA3806D02EE3D76A00DBD69D /* DailyQuotation */;
+		};
+		FA4DADA22EE5C0FA007E97CD /* Exceptions for "DailyQuotationWidget" folder in "DailyQuotationWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = FA4DAD872EE5C0F9007E97CD /* DailyQuotationWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		FA3806D32EE3D76A00DBD69D /* DailyQuotation */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FA3807012EE3DA6200DBD69D /* Exceptions for "DailyQuotation" folder in "DailyQuotation" target */,
+			);
 			path = DailyQuotation;
+			sourceTree = "<group>";
+		};
+		FA4DAD8E2EE5C0F9007E97CD /* DailyQuotationWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FA4DADA22EE5C0FA007E97CD /* Exceptions for "DailyQuotationWidget" folder in "DailyQuotationWidgetExtension" target */,
+			);
+			path = DailyQuotationWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +87,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA1929112EED99FA00E2E976 /* StoreKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA4DAD852EE5C0F9007E97CD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA4DAD8D2EE5C0F9007E97CD /* SwiftUI.framework in Frameworks */,
+				FA4DAD8B2EE5C0F9007E97CD /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,7 +106,10 @@
 		FA3806C82EE3D76A00DBD69D = {
 			isa = PBXGroup;
 			children = (
+				FAA7B2092EE7436D0043501A /* DailyQuotationWidgetExtensionRelease.entitlements */,
 				FA3806D32EE3D76A00DBD69D /* DailyQuotation */,
+				FA4DAD8E2EE5C0F9007E97CD /* DailyQuotationWidget */,
+				FA4DAD892EE5C0F9007E97CD /* Frameworks */,
 				FA3806D22EE3D76A00DBD69D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,8 +118,19 @@
 			isa = PBXGroup;
 			children = (
 				FA3806D12EE3D76A00DBD69D /* DailyQuotation.app */,
+				FA4DAD882EE5C0F9007E97CD /* DailyQuotationWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		FA4DAD892EE5C0F9007E97CD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FA1929102EED99FA00E2E976 /* StoreKit.framework */,
+				FA4DAD8A2EE5C0F9007E97CD /* WidgetKit.framework */,
+				FA4DAD8C2EE5C0F9007E97CD /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,10 +143,12 @@
 				FA3806CD2EE3D76A00DBD69D /* Sources */,
 				FA3806CE2EE3D76A00DBD69D /* Frameworks */,
 				FA3806CF2EE3D76A00DBD69D /* Resources */,
+				FA4DADA32EE5C0FA007E97CD /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				FA4DAD9D2EE5C0FA007E97CD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				FA3806D32EE3D76A00DBD69D /* DailyQuotation */,
@@ -69,6 +159,28 @@
 			productName = DailyQuotation;
 			productReference = FA3806D12EE3D76A00DBD69D /* DailyQuotation.app */;
 			productType = "com.apple.product-type.application";
+		};
+		FA4DAD872EE5C0F9007E97CD /* DailyQuotationWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FA4DAD9F2EE5C0FA007E97CD /* Build configuration list for PBXNativeTarget "DailyQuotationWidgetExtension" */;
+			buildPhases = (
+				FA4DAD842EE5C0F9007E97CD /* Sources */,
+				FA4DAD852EE5C0F9007E97CD /* Frameworks */,
+				FA4DAD862EE5C0F9007E97CD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				FA4DAD8E2EE5C0F9007E97CD /* DailyQuotationWidget */,
+			);
+			name = DailyQuotationWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = DailyQuotationWidgetExtension;
+			productReference = FA4DAD882EE5C0F9007E97CD /* DailyQuotationWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -81,6 +193,9 @@
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					FA3806D02EE3D76A00DBD69D = {
+						CreatedOnToolsVersion = 26.1.1;
+					};
+					FA4DAD872EE5C0F9007E97CD = {
 						CreatedOnToolsVersion = 26.1.1;
 					};
 				};
@@ -100,12 +215,20 @@
 			projectRoot = "";
 			targets = (
 				FA3806D02EE3D76A00DBD69D /* DailyQuotation */,
+				FA4DAD872EE5C0F9007E97CD /* DailyQuotationWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		FA3806CF2EE3D76A00DBD69D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA4DAD862EE5C0F9007E97CD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +245,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FA4DAD842EE5C0F9007E97CD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FA4DAD9D2EE5C0FA007E97CD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FA4DAD872EE5C0F9007E97CD /* DailyQuotationWidgetExtension */;
+			targetProxy = FA4DAD9C2EE5C0FA007E97CD /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		FA3806DA2EE3D76B00DBD69D /* Debug */ = {
@@ -249,8 +387,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = A4X27GHYV3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -265,6 +405,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = BiBoBiBo.DailyQuotation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -280,8 +421,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = DailyQuotation/DailyQuotationRelease.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = A4X27GHYV3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -296,9 +440,75 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = BiBoBiBo.DailyQuotation;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		FA4DADA02EE5C0FA007E97CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = A4X27GHYV3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DailyQuotationWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DailyQuotationWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = BiBoBiBo.DailyQuotation.DailyQuotationWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FA4DADA12EE5C0FA007E97CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = DailyQuotationWidgetExtensionRelease.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = A4X27GHYV3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DailyQuotationWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DailyQuotationWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = BiBoBiBo.DailyQuotation.DailyQuotationWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
@@ -323,6 +533,15 @@
 			buildConfigurations = (
 				FA3806DD2EE3D76B00DBD69D /* Debug */,
 				FA3806DE2EE3D76B00DBD69D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FA4DAD9F2EE5C0FA007E97CD /* Build configuration list for PBXNativeTarget "DailyQuotationWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA4DADA02EE5C0FA007E97CD /* Debug */,
+				FA4DADA12EE5C0FA007E97CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
