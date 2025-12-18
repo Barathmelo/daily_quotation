@@ -69,7 +69,7 @@ struct ContentView: View {
     tabContentLayer
       .offset(x: translation)
       .animation(translationSpring, value: translation)
-      .gesture(dragGesture)
+      .simultaneousGesture(dragGesture)
       .ignoresSafeArea()
   }
 
@@ -120,18 +120,23 @@ struct ContentView: View {
   private var dragGesture: some Gesture {
     DragGesture()
       .onChanged { value in
-        guard abs(value.translation.width) > abs(value.translation.height) else { return }
+        // 水平位移 > 垂直位移的 1.2 倍时响应
+        let isHorizontal = abs(value.translation.width) > abs(value.translation.height) * 1.2
+        guard isHorizontal else { return }
         isInteracting = true
         translation = value.translation.width
       }
       .onEnded { value in
-        let threshold = UIScreen.main.bounds.width * 0.25
+        let threshold = UIScreen.main.bounds.width * 0.15
         let dragWidth = value.translation.width
+        let isHorizontal = abs(value.translation.width) > abs(value.translation.height) * 1.2
 
-        if dragWidth < -threshold {
-          onSwipeToNextTab()
-        } else if dragWidth > threshold {
-          onSwipeToPreviousTab()
+        if isHorizontal {
+          if dragWidth < -threshold {
+            onSwipeToNextTab()
+          } else if dragWidth > threshold {
+            onSwipeToPreviousTab()
+          }
         }
 
         withAnimation(translationSpring) {

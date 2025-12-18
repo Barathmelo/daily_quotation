@@ -12,18 +12,18 @@ struct TabBarView: View {
 
   var body: some View {
     tabBarContent
-      .padding(.horizontal, 60)
+      .padding(.horizontal, 80)
       .animation(tabSpring, value: currentView)
   }
 
   @ViewBuilder
   private var tabBarContent: some View {
-    HStack(spacing: 12) {
+    HStack(spacing: 8) {
       ForEach(AppView.allCases, id: \.self) { view in
         tabButton(for: view)
       }
     }
-    .padding(.horizontal, 16)
+    .padding(.horizontal, 12)
     .padding(.vertical, 6)
     .glassEffect(.clear.interactive(), in: .capsule)
   }
@@ -42,12 +42,12 @@ struct TabBarView: View {
           if isSelected {
             Circle()
               .fill(accentColor.opacity(0.15))
-              .frame(width: 50, height: 50)
+              .frame(width: 44, height: 44)
               .matchedGeometryEffect(id: "tabSelection", in: tabAnimation)
           }
 
           Image(systemName: iconName(for: view, isSelected: isSelected))
-            .font(.system(size: 26, weight: .medium))
+            .font(.system(size: 24, weight: .medium))
             .foregroundColor(isSelected ? accentColor : Color(white: 0.6))
             .symbolEffect(.bounce, value: isSelected)
         }

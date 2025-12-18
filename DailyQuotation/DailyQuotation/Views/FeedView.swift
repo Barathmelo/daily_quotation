@@ -14,7 +14,7 @@ struct FeedView: View {
   private let quotes = LocalQuotes.quotes
   private let screenHeight = UIScreen.main.bounds.height
   private let maxDailyQuotes = 20
-  private let freeScrollAllowance = 3
+  private let freeScrollAllowance = 10
 
   var body: some View {
     let order = todayOrder
@@ -79,7 +79,6 @@ struct FeedView: View {
             if abs(value.translation.height) > abs(value.translation.width) {
               if !isDragging {
                 isDragging = true
-                HapticManager.light()
               }
 
               dragOffset = value.translation.height
