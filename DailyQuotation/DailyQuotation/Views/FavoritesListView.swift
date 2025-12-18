@@ -50,7 +50,7 @@ struct FavoritesListView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 80)
                 
-                ForEach(favoritesManager.favorites) { quote in
+                ForEach(favoritesManager.favorites.reversed()) { quote in
                     favoriteCard(quote: quote)
                         .padding(.horizontal, 16)
                 }

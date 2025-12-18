@@ -45,8 +45,8 @@ struct FeedView: View {
               .zIndex(0)
           } else if let prevIndex = quoteIndex(at: prevPos, in: order) {
             quoteCard(at: prevIndex, isFirstOfDay: false, offset: -screenHeight + downDragAmount)
-            .opacity(isDragging && dragOffset > 0 ? max(0, downProgress) : 0)
-            .zIndex(0)
+              .opacity(isDragging && dragOffset > 0 ? max(0, downProgress) : 0)
+              .zIndex(0)
           }
         }
 
@@ -67,8 +67,8 @@ struct FeedView: View {
               .zIndex(0)
           } else if let nextIndex = quoteIndex(at: nextPos, in: order) {
             quoteCard(at: nextIndex, isFirstOfDay: false, offset: screenHeight - upDragAmount)
-            .opacity(isDragging && dragOffset < 0 ? max(0, upProgress) : 0)
-            .zIndex(0)
+              .opacity(isDragging && dragOffset < 0 ? max(0, upProgress) : 0)
+              .zIndex(0)
           }
         }
       }
@@ -94,26 +94,20 @@ struct FeedView: View {
               // Swipe up → go forward (cap at end)
               let nextPos = currentPosition + 1
               if nextPos < totalPositions {
-                if nextPos > furthestPosition {
-                if subscriptionManager.isPremiumUser {
-                  // 订阅用户不受免费次数限制
-                  furthestPosition = nextPos
-                } else {
-                  if nextPos >= freeScrollAllowance {
-                    guard
-                      AccessControl.shared.registerViewIfAllowed(
-                        isPremium: false)
-                    else {
-                      withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                        dragOffset = 0
-                      }
-                      onRequirePaywall()
-                      return
-                    }
+                // 免费用户：严格限制在前3条（position 0, 1, 2）
+                if !subscriptionManager.isPremiumUser && nextPos >= freeScrollAllowance {
+                  withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                    dragOffset = 0
                   }
+                  onRequirePaywall()
+                  return
+                }
+
+                // 更新最远位置
+                if nextPos > furthestPosition {
                   furthestPosition = nextPos
                 }
-                }
+
                 withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                   currentPosition = nextPos
                   dragOffset = 0
@@ -244,7 +238,7 @@ struct FeedView: View {
       Text("That's it for now.")
         .font(.system(size: 26, weight: .bold))
         .foregroundColor(.white)
-      Text("You've reached the end of this collection.\nCheck back later for more.")
+      Text("You've reached the end of this collection.\nCheck back tomorrow for more.")
         .font(.system(size: 16, weight: .medium))
         .foregroundColor(.white.opacity(0.78))
         .multilineTextAlignment(.center)

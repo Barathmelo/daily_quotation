@@ -16,26 +16,27 @@ struct PaywallView: View {
       )
       .ignoresSafeArea()
 
-      VStack(spacing: 18) {
+      VStack(spacing: 16) {
         header
         benefits
         plans
         restoreButton
-        footerNote
-        primaryButton
       }
       .padding(.horizontal, 24)
-      .padding(.vertical, 28)
-      .frame(maxWidth: 500, alignment: .top)
+      .padding(.top, 8)
+      .frame(maxWidth: 500)
     }
-    .frame(maxHeight: .infinity, alignment: .top)
     .foregroundStyle(.white)
+    .onAppear {
+      // 确保进入时不会遗留上次的“加载中”状态
+      purchasingProductID = nil
+    }
     .task {
       if subscriptionManager.products.isEmpty {
         Task { await subscriptionManager.loadProducts() }
       }
     }
-    .onChange(of: subscriptionManager.isPremiumUser) { isPremium in
+    .onChange(of: subscriptionManager.isPremiumUser) { _, isPremium in
       if isPremium {
         dismiss()
       }
@@ -97,40 +98,42 @@ struct PaywallView: View {
     VStack(spacing: 12) {
       planButton(
         product: subscriptionManager.yearly, title: "$11.99 / Year",
-        subtitle: "Best Value · 7-day free trial")
+        subtitle: "Best Value · 50% Discount!")
       planButton(
-        product: subscriptionManager.monthly, title: "$1.99 / Month", subtitle: "7-day free trial")
+        product: subscriptionManager.monthly, title: "$1.99 / Month", subtitle: nil)
     }
   }
 
-  private func planButton(product: Product?, title: String, subtitle: String) -> some View {
+  private func planButton(product: Product?, title: String, subtitle: String?) -> some View {
     Button {
       if let product {
+        HapticManager.medium()  // 仅订阅按钮触发触感
         performPurchase(product)
       } else {
-        HapticManager.light()
         Task { await subscriptionManager.loadProducts() }
       }
     } label: {
       HStack {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: subtitle == nil ? 0 : 4) {
           Text(title)
             .font(.system(size: 17, weight: .bold))
-          Text(subtitle)
-            .font(.system(size: 13, weight: .medium))
-            .foregroundStyle(.white.opacity(0.8))
+          if let subtitle, !subtitle.isEmpty {
+            Text(subtitle)
+              .font(.system(size: 13, weight: .medium))
+              .foregroundColor(.black.opacity(0.8))
+          }
         }
         Spacer()
-        if purchasingProductID == product?.id {
+        if let productID = product?.id, purchasingProductID == productID {
           ProgressView()
-            .tint(.white)
+            .tint(.black)
             .scaleEffect(0.9)
         } else if let offer = product?.subscription?.introductoryOffer {
           Text(offerDisplay(offer))
             .font(.system(size: 12, weight: .bold))
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
-            .background(Color.green.opacity(0.18))
+            .background(Color.white.opacity(0.18))
             .clipShape(Capsule())
         } else {
           Image(systemName: "chevron.right")
@@ -139,8 +142,16 @@ struct PaywallView: View {
       }
       .padding()
       .frame(maxWidth: .infinity)
-      .background(Color.white.opacity(0.08))
+      .background(
+        LinearGradient(
+          colors: [Color.yellow, Color.green],
+          startPoint: .leading,
+          endPoint: .trailing
+        )
+      )
       .clipShape(RoundedRectangle(cornerRadius: 16))
+      .contentShape(RoundedRectangle(cornerRadius: 16))
+      .foregroundColor(.black)
     }
     .buttonStyle(.plain)
     .disabled(purchasingProductID != nil || product == nil)
@@ -200,33 +211,12 @@ struct PaywallView: View {
 
   private func performPurchase(_ product: Product) {
     let productID = product.id
-    HapticManager.medium()
     purchasingProductID = productID
 
     Task {
-      await withTaskGroup(of: Void.self) { group in
-        group.addTask {
-          await subscriptionManager.purchase(product)
-        }
-
-        group.addTask {
-          try? await Task.sleep(nanoseconds: 12_000_000_000)
-          await MainActor.run {
-            if purchasingProductID == productID {
-              purchaseError = "连接 App Store 超时，请稍后重试。"
-              purchasingProductID = nil
-            }
-          }
-        }
-
-        _ = await group.next()
-        group.cancelAll()
-      }
-
+      await subscriptionManager.purchase(product)
       await MainActor.run {
-        if purchasingProductID == productID {
-          purchasingProductID = nil
-        }
+        purchasingProductID = nil
       }
     }
   }

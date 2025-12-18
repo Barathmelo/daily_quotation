@@ -11,16 +11,21 @@ struct TabBarView: View {
     blendDuration: 0.25)
 
   var body: some View {
-    HStack(spacing: 0) {
+    tabBarContent
+      .padding(.horizontal, 60)
+      .animation(tabSpring, value: currentView)
+  }
+
+  @ViewBuilder
+  private var tabBarContent: some View {
+    HStack(spacing: 12) {
       ForEach(AppView.allCases, id: \.self) { view in
         tabButton(for: view)
       }
     }
-    .padding(.horizontal, 20)
-    .padding(.vertical, 8)
-//    .background(GlassBarBackground())
-    .padding(.horizontal, 26)
-    .animation(tabSpring, value: currentView)
+    .padding(.horizontal, 16)
+    .padding(.vertical, 6)
+    .glassEffect(.clear.interactive(), in: .capsule)
   }
 
   private func tabButton(for view: AppView) -> some View {
@@ -33,21 +38,23 @@ struct TabBarView: View {
       onSelect(view)
     } label: {
       VStack(spacing: 6) {
-        Image(systemName: iconName(for: view, isSelected: isSelected))
-          .font(.system(size: 26, weight: .medium))
-          .foregroundColor(isSelected ? accentColor : Color(white: 0.6))
-          .frame(width: 36, height: 36)
-          .scaleEffect(isSelected ? 1.12 : 1.0)
+        ZStack {
+          if isSelected {
+            Circle()
+              .fill(accentColor.opacity(0.15))
+              .frame(width: 50, height: 50)
+              .matchedGeometryEffect(id: "tabSelection", in: tabAnimation)
+          }
 
-//        Text(label(for: view))
-//          .font(.system(size: 13, weight: .semibold))
-//          .tracking(1)
-//          .foregroundColor(isSelected ? accentColor : Color(white: 0.6))
+          Image(systemName: iconName(for: view, isSelected: isSelected))
+            .font(.system(size: 26, weight: .medium))
+            .foregroundColor(isSelected ? accentColor : Color(white: 0.6))
+            .symbolEffect(.bounce, value: isSelected)
+        }
       }
       .frame(maxWidth: .infinity)
       .padding(.horizontal, 4)
-      .padding(.top, 2)
-      .padding(.bottom, 10)
+      .padding(.vertical, 4)
       .contentShape(Rectangle())
     }
     .buttonStyle(.plain)
@@ -69,32 +76,5 @@ struct TabBarView: View {
     case .favorites:
       return "Saved"
     }
-  }
-}
-
-// MARK: - Glass Background
-
-private struct GlassBarBackground: View {
-  @Environment(\.colorScheme) private var colorScheme
-
-  private var tintOpacity: Double {
-    colorScheme == .dark ? 0.18 : 0.08
-  }
-
-  var body: some View {
-    RoundedRectangle(cornerRadius: 32, style: .continuous)
-      .fill(.ultraThinMaterial)
-      .background(
-        RoundedRectangle(cornerRadius: 32, style: .continuous)
-          .fill(Color.white.opacity(tintOpacity))
-          .blur(radius: 20)
-      )
-      .overlay(
-        RoundedRectangle(cornerRadius: 32, style: .continuous)
-          .stroke(Color.white.opacity(colorScheme == .dark ? 0.25 : 0.3), lineWidth: 1)
-          .blendMode(.overlay)
-      )
-      .shadow(color: Color.black.opacity(0.2), radius: 16, x: 0, y: 8)
-      .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 1)
   }
 }

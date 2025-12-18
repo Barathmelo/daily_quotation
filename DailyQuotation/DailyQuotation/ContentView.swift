@@ -38,7 +38,7 @@ struct ContentView: View {
           currentView: currentView,
           onSelect: handleTabSelection
         )
-        .padding(.bottom, 16)
+        .padding(.bottom, 32)
       }
       .padding(.horizontal, 0)
       .ignoresSafeArea(edges: .bottom)
@@ -59,7 +59,7 @@ struct ContentView: View {
     .sheet(isPresented: $showPaywall) {
       PaywallView()
         .environmentObject(subscriptionManager)
-        .presentationDetents([.fraction(0.75)])
+        .presentationDetents([.height(450)])
         .presentationDragIndicator(.visible)
     }
   }
