@@ -108,8 +108,10 @@ struct ContentView: View {
       FeedView(
         appearance: appearance,
         persistedIndex: $feedCurrentIndex,
+        isPremium: subscriptionManager.isPremiumUser,
         onRequirePaywall: { showPaywall = true }
       )
+      .id(subscriptionManager.isPremiumUser)
       .environmentObject(subscriptionManager)
     case .favorites:
       FavoritesListView(appearance: appearance)
