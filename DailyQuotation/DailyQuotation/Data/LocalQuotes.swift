@@ -82,10 +82,9 @@ private extension LocalQuotes {
             let trimmedQuote = quote.trimmingCharacters(in: .whitespacesAndNewlines)
             let trimmedAuthor = author.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmedQuote.isEmpty, !trimmedAuthor.isEmpty else { return nil }
-            
+
             let categoryValue = LocalQuotes.normalizedCategory(from: self)
             return Quote(
-                id: UUID().uuidString,
                 text: trimmedQuote,
                 author: trimmedAuthor,
                 category: categoryValue

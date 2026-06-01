@@ -104,7 +104,6 @@ enum WidgetQuoteRepository {
 
       let categoryValue = normalizedCategory(from: self)
       return Quote(
-        id: UUID().uuidString,
         text: trimmedQuote,
         author: trimmedAuthor,
         category: categoryValue

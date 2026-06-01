@@ -1,3 +1,4 @@
+import CryptoKit
 import SwiftUI
 
 enum WidgetSharedDefaults {
@@ -14,11 +15,17 @@ struct Quote: Identifiable, Codable, Hashable {
   let author: String
   let category: String?
 
-  init(id: String = UUID().uuidString, text: String, author: String, category: String? = nil) {
-    self.id = id
+  init(id: String? = nil, text: String, author: String, category: String? = nil) {
+    self.id = id ?? Self.stableID(text: text, author: author)
     self.text = text
     self.author = author
     self.category = category
+  }
+
+  static func stableID(text: String, author: String) -> String {
+    let input = "\(text)|\(author)"
+    let digest = SHA256.hash(data: Data(input.utf8))
+    return digest.prefix(8).map { String(format: "%02x", $0) }.joined()
   }
 }
 
