@@ -68,13 +68,4 @@ struct TabBarView: View {
       return isSelected ? "heart.fill" : "heart"
     }
   }
-
-  private func label(for view: AppView) -> String {
-    switch view {
-    case .feed:
-      return "Daily"
-    case .favorites:
-      return "Saved"
-    }
-  }
 }
