@@ -13,7 +13,7 @@ class FavoritesManager: ObservableObject {
   }
 
   func loadFavorites() {
-    guard let data = UserDefaults.standard.data(forKey: storageKey),
+    guard let data = SharedDefaults.store.data(forKey: storageKey),
       let decoded = try? JSONDecoder().decode([Quote].self, from: data)
     else {
       favorites = []
@@ -24,7 +24,7 @@ class FavoritesManager: ObservableObject {
 
   func saveFavorites() {
     guard let data = try? JSONEncoder().encode(favorites) else { return }
-    UserDefaults.standard.set(data, forKey: storageKey)
+    SharedDefaults.store.set(data, forKey: storageKey)
   }
 
   func toggleFavorite(_ quote: Quote) {
