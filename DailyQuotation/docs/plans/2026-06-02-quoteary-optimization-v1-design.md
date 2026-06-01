@@ -72,16 +72,21 @@ static var store: UserDefaults {
 
 **成功标准**: 收藏数据写入 App Group 后能在 Widget 读到（写一个临时测试函数验证）。
 
-### 3.4 统一 Model（去重）
+### 3.4 统一 Model（去重）— **M1 推迟，可能 cancel**
 
 **问题**: `Quote`/`AppearanceSettings`/`FontFamily`/`TextSize` 在主 App 和 Widget 各定义一份。
 
-**方案**:
-- 在 Xcode 中把 `DailyQuotation/Models/Quote.swift` 和 `AppearanceSettings.swift` 的 **Target Membership** 勾上 Widget
-- 把 Widget 端 `WidgetSharedModels.swift` 的 `Quote.placeholder` 和 `AppearanceSettings.quoteFont` 扩展挪到主 Model 文件
-- 删除 Widget 端的重复定义，只保留 `WidgetSharedDefaults`
+**M1 实际处理**: Xcode 16 file system synchronized groups 模式下，一个文件物理上只能在一个 sync root，
+要让 Model 跨 target 共享必须依赖 Xcode GUI 的 Target Membership exception 或手动改 pbxproj。
+两种方式都需要在 Xcode 内验证，且本任务**只是物理去重**——
 
-**成功标准**: 主 app + Widget 都能编译通过；Widget Preview 正常。
+我们已经在 Task 4 让两端 `Quote.stableID` 算法完全一致，两份 Model **语义等价**；Widget 通过 JSON
+在 SharedDefaults 中互传，根本不依赖类型共享。所以 M1 选择**跳过此任务**，把它降级为
+"M2/M3 期间如有需要再处理"的低优先级技术债。
+
+**如果未来要做**：在 Xcode 中选中 `Quote.swift` / `AppearanceSettings.swift`，File Inspector →
+Target Membership 勾上 `DailyQuotationWidgetExtension`，然后删除 `WidgetSharedModels.swift`
+中的重复定义。
 
 ### 3.5 拆 FeedViewModel
 
