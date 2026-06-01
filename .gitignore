@@ -6,3 +6,10 @@
 
 # Xcode (per-user, should not be tracked)
 *.xcuserstate
+**/xcuserdata/
+
+# Unrelated sibling projects living in the same parent repo
+Sleep Well/
+untitled folder/
+Nighty night/
+
