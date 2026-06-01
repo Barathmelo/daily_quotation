@@ -127,7 +127,7 @@ struct ContentView: View {
         translation = value.translation.width
       }
       .onEnded { value in
-        let threshold = UIScreen.main.bounds.width * 0.15
+        let threshold: CGFloat = 60
         let dragWidth = value.translation.width
         let isHorizontal = abs(value.translation.width) > abs(value.translation.height) * 1.2
 
