@@ -4,10 +4,7 @@ enum WidgetSharedDefaults {
   private static let appGroupIdentifier = "group.BiBoBiBo.DailyQuotation"
 
   static var store: UserDefaults {
-    guard let defaults = UserDefaults(suiteName: appGroupIdentifier) else {
-      fatalError("App Group \(appGroupIdentifier) is not available. Check entitlements.")
-    }
-    return defaults
+    UserDefaults(suiteName: appGroupIdentifier) ?? .standard
   }
 }
 

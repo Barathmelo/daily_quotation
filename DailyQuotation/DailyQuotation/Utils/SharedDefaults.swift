@@ -5,10 +5,13 @@ enum SharedDefaults {
   private static let appGroupIdentifier = "group.BiBoBiBo.DailyQuotation"
 
   static var store: UserDefaults {
-    guard let defaults = UserDefaults(suiteName: appGroupIdentifier) else {
-      fatalError("App Group \(appGroupIdentifier) is not available. Check entitlements.")
+    if let defaults = UserDefaults(suiteName: appGroupIdentifier) {
+      return defaults
     }
-    return defaults
+    #if DEBUG
+    print("⚠️ SharedDefaults: App Group \(appGroupIdentifier) unavailable, falling back to .standard")
+    #endif
+    return .standard
   }
 }
 
