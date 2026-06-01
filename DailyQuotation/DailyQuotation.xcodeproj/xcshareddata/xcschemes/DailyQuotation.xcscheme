@@ -50,9 +50,6 @@
             ReferencedContainer = "container:DailyQuotation.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <StoreKitConfigurationFileReference
-         identifier = "../../DailyQuotation/Views/store_test.storekit">
-      </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -76,6 +73,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
+      customArchiveName = "Quotery"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>

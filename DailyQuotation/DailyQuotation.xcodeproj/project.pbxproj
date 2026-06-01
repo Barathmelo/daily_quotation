@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FA1929112EED99FA00E2E976 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA1929102EED99FA00E2E976 /* StoreKit.framework */; };
+		FA03E3632EFB0BE40051E355 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA1929102EED99FA00E2E976 /* StoreKit.framework */; };
 		FA4DAD8B2EE5C0F9007E97CD /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA4DAD8A2EE5C0F9007E97CD /* WidgetKit.framework */; };
 		FA4DAD8D2EE5C0F9007E97CD /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA4DAD8C2EE5C0F9007E97CD /* SwiftUI.framework */; };
 		FA4DAD9E2EE5C0FA007E97CD /* DailyQuotationWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FA4DAD882EE5C0F9007E97CD /* DailyQuotationWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -87,7 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA1929112EED99FA00E2E976 /* StoreKit.framework in Frameworks */,
+				FA03E3632EFB0BE40051E355 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,6 +393,7 @@
 				DEVELOPMENT_TEAM = A4X27GHYV3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Quotery;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -428,6 +429,7 @@
 				DEVELOPMENT_TEAM = A4X27GHYV3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Quotery;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

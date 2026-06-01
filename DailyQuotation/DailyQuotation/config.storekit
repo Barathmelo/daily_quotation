@@ -9,7 +9,7 @@
       }
     ]
   },
-  "identifier" : "4DB82954",
+  "identifier" : "5A7630B1",
   "nonRenewingSubscriptions" : [
 
   ],
@@ -17,11 +17,14 @@
 
   ],
   "settings" : {
+    "_applicationInternalID" : "6756517877",
     "_askToBuyEnabled" : false,
     "_billingGracePeriodEnabled" : false,
     "_billingIssuesEnabled" : false,
+    "_developerTeamID" : "A4X27GHYV3",
     "_disableDialogs" : false,
     "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 788431899.23377299,
     "_locale" : "en_US",
     "_renewalBillingIssuesEnabled" : false,
     "_storefront" : "USA",
@@ -32,15 +35,11 @@
   },
   "subscriptionGroups" : [
     {
-      "id" : "79D8298B",
+      "id" : "21865485",
       "localizations" : [
-        {
-          "description" : "",
-          "displayName" : "Monthly Subscribe",
-          "locale" : "en_US"
-        }
+
       ],
-      "name" : "Monthly",
+      "name" : "Premium",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -51,38 +50,25 @@
           ],
           "displayPrice" : "1.99",
           "familyShareable" : false,
-          "groupNumber" : 1,
-          "internalID" : "AF6FBB4B",
+          "groupNumber" : 2,
+          "internalID" : "6756834188",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "",
-              "displayName" : "",
+              "description" : "Get the best price on a monthly basis",
+              "displayName" : "Monthly",
               "locale" : "en_US"
             }
           ],
-          "productID" : "premium_monthly",
+          "productID" : "monthly_sub",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Monthly Subscribe",
-          "subscriptionGroupID" : "79D8298B",
+          "referenceName" : "MonthlySub",
+          "subscriptionGroupID" : "21865485",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
 
           ]
-        }
-      ]
-    },
-    {
-      "id" : "B23345CC",
-      "localizations" : [
-        {
-          "description" : "",
-          "displayName" : "Yearly Subscribe",
-          "locale" : "en_US"
-        }
-      ],
-      "name" : "Yearly",
-      "subscriptions" : [
+        },
         {
           "adHocOffers" : [
 
@@ -90,22 +76,22 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "11.99",
+          "displayPrice" : "12.99",
           "familyShareable" : false,
           "groupNumber" : 1,
-          "internalID" : "3FF2B74F",
+          "internalID" : "6756837972",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "",
-              "displayName" : "",
+              "description" : "Get the best price on products annually",
+              "displayName" : "Annual Subscription",
               "locale" : "en_US"
             }
           ],
-          "productID" : "premium_yearly",
+          "productID" : "yearly_sub",
           "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "Yearly Subscribe",
-          "subscriptionGroupID" : "B23345CC",
+          "referenceName" : "YearlySub",
+          "subscriptionGroupID" : "21865485",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
 

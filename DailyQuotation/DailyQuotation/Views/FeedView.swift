@@ -14,7 +14,7 @@ struct FeedView: View {
   private let quotes = LocalQuotes.quotes
   private let screenHeight = UIScreen.main.bounds.height
   private let maxDailyQuotes = 20
-  private let freeScrollAllowance = 10
+  private let freeScrollAllowance = 1
 
   var body: some View {
     let order = todayOrder
@@ -92,16 +92,18 @@ struct FeedView: View {
             {
               // Swipe up → go forward (cap at end)
               let nextPos = currentPosition + 1
-              if nextPos < totalPositions {
-                // 免费用户：严格限制在前3条（position 0, 1, 2）
-                if !subscriptionManager.isPremiumUser && nextPos >= freeScrollAllowance {
-                  withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                    dragOffset = 0
-                  }
-                  onRequirePaywall()
-                  return
-                }
 
+              // 免费用户：严格限制在前3条（position 0, 1, 2）
+              if !subscriptionManager.isPremiumUser && nextPos >= freeScrollAllowance {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                  dragOffset = 0
+                }
+                onRequirePaywall()
+                isDragging = false
+                return
+              }
+
+              if nextPos < totalPositions {
                 // 更新最远位置
                 if nextPos > furthestPosition {
                   furthestPosition = nextPos
@@ -164,7 +166,7 @@ struct FeedView: View {
     .onChange(of: currentPosition) { newValue in
       persistedIndex = newValue
     }
-    .onChange(of: todaySeedIndex) { _ in
+    .onChange(of: currentDayOfYear) { _ in
       currentPosition = 0
       persistedIndex = 0
       furthestPosition = 0
@@ -210,17 +212,35 @@ struct FeedView: View {
 
   private var todayOrder: [Int] {
     guard !quotes.isEmpty else { return [] }
-    let today = todaySeedIndex
-    var others = Array(0..<quotes.count).filter { $0 != today }
-    var generator = SeededGenerator(
-      seed: UInt64(DailyShuffle.seedValue(seed: today, total: quotes.count)))
-    others.shuffle(using: &generator)
-    let cappedOthers = Array(others.prefix(max(0, maxDailyQuotes - 1)))
-    return [today] + cappedOthers
+
+    let calendar = Calendar.current
+    let now = Date()
+    let startOfDay = calendar.startOfDay(for: now)
+
+    // 计算从起始日期（2025年1月1日）到今天经过了多少天
+    let startDate = calendar.date(from: DateComponents(year: 2025, month: 1, day: 1))!
+    let daysSinceStart = calendar.dateComponents([.day], from: startDate, to: startOfDay).day ?? 0
+
+    let quotesPerDay = subscriptionManager.isPremiumUser ? maxDailyQuotes : freeScrollAllowance
+    let totalQuotes = quotes.count
+
+    // 计算今天应该从哪个索引开始（顺序消费）
+    let startIndex = (daysSinceStart * quotesPerDay) % totalQuotes
+
+    // 生成连续的索引数组
+    var result: [Int] = []
+    for i in 0..<quotesPerDay {
+      let index = (startIndex + i) % totalQuotes
+      result.append(index)
+    }
+
+    return result
   }
 
-  private var todaySeedIndex: Int {
-    DailyQuoteSync.todayIndex()
+  private var currentDayOfYear: Int {
+    let calendar = Calendar.current
+    let startOfDay = calendar.startOfDay(for: Date())
+    return calendar.ordinality(of: .day, in: .year, for: startOfDay) ?? 0
   }
 
   private func quoteIndex(at position: Int, in order: [Int]) -> Int? {
@@ -246,36 +266,5 @@ struct FeedView: View {
     .background(Color.black)
     .offset(y: offset)
     .opacity(1.0 - abs(offset) / (screenHeight * 1.5))
-  }
-}
-
-// MARK: - Deterministic daily shuffle (cap 5/day)
-private enum DailyShuffle {
-  static func order(total: Int, limit: Int, seed: Int) -> [Int] {
-    guard total > 0 else { return [] }
-    let cappedLimit = max(1, min(limit, total))
-    var indices = Array(0..<total)
-    var generator = SeededGenerator(seed: UInt64(seedValue(seed: seed, total: total)))
-    indices.shuffle(using: &generator)
-    return Array(indices.prefix(cappedLimit))
-  }
-
-  static func seedValue(seed: Int, total: Int) -> UInt64 {
-    let a = UInt64(seed & 0xFFFF)
-    let b = UInt64(total & 0xFFFF)
-    return (a << 32) ^ (b << 16) ^ 0x9E37_79B9_7F4A_7C15
-  }
-}
-
-private struct SeededGenerator: RandomNumberGenerator {
-  private var state: UInt64
-  init(seed: UInt64) {
-    self.state = seed != 0 ? seed : 0x123_4567_89AB_CDEF
-  }
-  mutating func next() -> UInt64 {
-    state ^= state << 7
-    state ^= state >> 9
-    state ^= 0xA076_1D64_78BD_642F
-    return state
   }
 }

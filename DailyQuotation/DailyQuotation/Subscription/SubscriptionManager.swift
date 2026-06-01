@@ -11,8 +11,8 @@ final class SubscriptionManager: ObservableObject {
   @Published private(set) var isLoading: Bool = false
 
   private let productIDs = [
-    "premium_monthly",
-    "premium_yearly"
+    "monthly_sub",
+    "yearly_sub"
   ]
 
   init() {
@@ -80,8 +80,8 @@ final class SubscriptionManager: ObservableObject {
   }
 
   // MARK: - Helpers
-  var monthly: Product? { products.first { $0.id == "premium_monthly" } }
-  var yearly: Product? { products.first { $0.id == "premium_yearly" } }
+  var monthly: Product? { products.first { $0.id == "monthly_sub" } }
+  var yearly: Product? { products.first { $0.id == "yearly_sub" } }
 
   private func listenForTransactions() {
     Task.detached { [weak self] in

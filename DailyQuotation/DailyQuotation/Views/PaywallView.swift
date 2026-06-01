@@ -58,9 +58,6 @@ struct PaywallView: View {
       VStack(alignment: .leading, spacing: 4) {
         Text("Get Full Access")
           .font(.system(size: 28, weight: .bold))
-        // Text("All features. Full AI power.")
-        //   .font(.system(size: 16, weight: .semibold))
-        //   .foregroundStyle(Color.green)
       }
       Spacer()
       Button(action: { dismiss() }) {
@@ -97,8 +94,8 @@ struct PaywallView: View {
   private var plans: some View {
     VStack(spacing: 12) {
       planButton(
-        product: subscriptionManager.yearly, title: "$11.99 / Year",
-        subtitle: "Best Value · 50% Discount!")
+        product: subscriptionManager.yearly, title: "$12.99 / Year",
+        subtitle: "Best Value!")
       planButton(
         product: subscriptionManager.monthly, title: "$1.99 / Month", subtitle: nil)
     }

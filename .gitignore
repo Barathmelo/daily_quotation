@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Editor / Agent state
+.claude/
+
+# Xcode (per-user, should not be tracked)
+*.xcuserstate
