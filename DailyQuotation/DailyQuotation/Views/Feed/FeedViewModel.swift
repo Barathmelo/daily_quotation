@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 import SwiftUI
 
@@ -21,11 +22,11 @@ final class FeedViewModel: ObservableObject {
   init(
     isPremium: Bool,
     referenceDate: Date = Date(),
-    quotes: [Quote] = LocalQuotes.quotes
+    quotes: [Quote]? = nil
   ) {
     self.isPremium = isPremium
     self.referenceDate = referenceDate
-    self.quotes = quotes
+    self.quotes = quotes ?? LocalQuotes.quotes
   }
 
   // MARK: - Derived state
