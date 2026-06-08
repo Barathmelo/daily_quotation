@@ -5,7 +5,7 @@ struct FeedView: View {
   @ObservedObject var favoritesManager = FavoritesManager.shared
   @Binding var appearance: AppearanceSettings
   @Binding var persistedIndex: Int
-  @EnvironmentObject private var subscriptionManager: SubscriptionManager
+  @EnvironmentObject private var subscriptionManager: RevenueCatManager
   var onRequirePaywall: () -> Void = {}
 
   @State private var dragOffset: CGFloat = 0

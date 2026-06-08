@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-  @EnvironmentObject private var subscriptionManager: SubscriptionManager
+  @EnvironmentObject private var subscriptionManager: RevenueCatManager
   @StateObject private var appearanceManager = AppearanceManager.shared
   @State private var currentView: AppView = .feed
   @State private var transitionDirection: TabTransitionDirection = .forward
@@ -9,7 +9,6 @@ struct ContentView: View {
   @State private var isInteracting = false
   @State private var feedCurrentIndex: Int = 0
   @State private var showPaywall = false
-  @Environment(\.scenePhase) private var scenePhase
 
   init() {
     DailyQuoteSync.syncTodayIfNeeded()
@@ -45,22 +44,9 @@ struct ContentView: View {
     }
     .background(Color.black.ignoresSafeArea())
     .onAppear(perform: syncDailyQuoteAndIndex)
-    .task {
-      await subscriptionManager.refreshSubscriptionStatus()
-      await subscriptionManager.loadProducts()
-    }
-    .onChange(of: scenePhase) { phase in
-      if phase == .active {
-        Task {
-          await subscriptionManager.refreshSubscriptionStatus()
-        }
-      }
-    }
     .sheet(isPresented: $showPaywall) {
       PaywallView()
         .environmentObject(subscriptionManager)
-        .presentationDetents([.height(450)])
-        .presentationDragIndicator(.visible)
     }
   }
 
