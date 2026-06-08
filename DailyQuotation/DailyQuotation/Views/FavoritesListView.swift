@@ -1,20 +1,54 @@
+import RevenueCatUI
 import SwiftUI
 
 struct FavoritesListView: View {
     @ObservedObject var favoritesManager = FavoritesManager.shared
     @Binding var appearance: AppearanceSettings
-    
+    @State private var showingCustomerCenter = false
+
     var body: some View {
         ZStack {
             Color(red: 0.05, green: 0.05, blue: 0.05)
                 .ignoresSafeArea()
-            
+
             if favoritesManager.favorites.isEmpty {
                 emptyStateView
             } else {
                 scrollView
             }
+
+            VStack {
+                HStack {
+                    Spacer()
+                    customerCenterButton
+                        .padding(.trailing, 16)
+                        .padding(.top, 60)
+                }
+                Spacer()
+            }
         }
+        .sheet(isPresented: $showingCustomerCenter) {
+            CustomerCenterView()
+        }
+    }
+
+    private var customerCenterButton: some View {
+        Button {
+            showingCustomerCenter = true
+        } label: {
+            Image(systemName: "person.crop.circle")
+                .font(.system(size: 22, weight: .medium))
+                .foregroundColor(.white.opacity(0.85))
+                .frame(width: 40, height: 40)
+                .background(
+                    Circle()
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(
+                            Circle().stroke(Color.white.opacity(0.12), lineWidth: 1)
+                        )
+                )
+        }
+        .buttonStyle(.plain)
     }
     
     private var emptyStateView: some View {
