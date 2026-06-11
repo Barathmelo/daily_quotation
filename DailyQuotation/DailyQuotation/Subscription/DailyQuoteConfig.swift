@@ -14,18 +14,4 @@ enum DailyQuoteConfig {
   /// The same key is used for both sandbox and production; RevenueCat
   /// distinguishes environments server-side based on the receipt.
   static let revenueCatAPIKey = "appl_nRdUDgmPLauGUJsBgSTDBGWolzu"
-
-  // MARK: - Legal links (required by App Store Guideline 3.1.2)
-  //
-  // 这两个 URL 必须在订阅页面（PaywallView）中以可点击链接的形式呈现，
-  // 同时 App Store Connect 的 App Description 里也必须出现 EULA 链接。
-  // 不要在这里使用本地文件 / about:blank 之类的占位，Apple 会真实点击验证。
-
-  /// 标准 Apple EULA。如果你后续使用自定义 EULA，
-  /// 在 App Store Connect → App Information → License Agreement 配置，
-  /// 并把这里替换成自己的可访问 URL。
-  static let eulaURL = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
-
-  /// 自托管 Privacy Policy URL（推荐用 GitHub Pages）。
-  static let privacyPolicyURL = URL(string: "https://barathmelo.github.io/privacy.html")!
 }
