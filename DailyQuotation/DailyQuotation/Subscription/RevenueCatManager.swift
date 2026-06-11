@@ -19,7 +19,7 @@ final class RevenueCatManager: ObservableObject {
 
   /// Identifier of the entitlement that unlocks premium features.
   /// Must match exactly what's configured in the RevenueCat dashboard.
-  static let premiumEntitlementID = "DailyQuote Pro"
+  static let premiumEntitlementID = "Premium"
 
   @Published private(set) var customerInfo: CustomerInfo?
   @Published private(set) var currentOffering: Offering?
