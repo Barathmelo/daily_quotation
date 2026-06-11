@@ -25,6 +25,7 @@ final class RevenueCatManager: ObservableObject {
   @Published private(set) var currentOffering: Offering?
   @Published private(set) var isPremiumUser: Bool = false
   @Published private(set) var isLoadingOfferings: Bool = false
+  @Published private(set) var lastOfferingsError: String?
 
   private var customerInfoTask: Task<Void, Never>?
 
@@ -50,11 +51,18 @@ final class RevenueCatManager: ObservableObject {
 
   func loadOfferings() async {
     isLoadingOfferings = true
+    lastOfferingsError = nil
     defer { isLoadingOfferings = false }
     do {
       let offerings = try await Purchases.shared.offerings()
       currentOffering = offerings.current
+      if currentOffering == nil {
+        lastOfferingsError = "No 'current' offering set in RevenueCat dashboard. "
+          + "(Offerings fetched: \(offerings.all.count))"
+      }
     } catch {
+      let message = (error as NSError).localizedDescription
+      lastOfferingsError = message
       #if DEBUG
       print("⚠️ RevenueCatManager.loadOfferings failed: \(error)")
       #endif

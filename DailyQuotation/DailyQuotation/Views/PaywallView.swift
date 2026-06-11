@@ -80,6 +80,17 @@ struct PaywallView: View {
         .font(.subheadline)
         .multilineTextAlignment(.center)
         .foregroundStyle(.white.opacity(0.7))
+
+      if let errorMessage = subscriptionManager.lastOfferingsError {
+        Text(errorMessage)
+          .font(.caption)
+          .multilineTextAlignment(.center)
+          .foregroundStyle(.red.opacity(0.85))
+          .padding(.horizontal)
+          .padding(.top, 4)
+          .textSelection(.enabled)
+      }
+
       Button("Try Again") {
         Task { await subscriptionManager.loadOfferings() }
       }

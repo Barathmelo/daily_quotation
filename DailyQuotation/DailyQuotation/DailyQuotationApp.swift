@@ -16,7 +16,11 @@ struct DailyQuotationApp: App {
         // RevenueCat must be configured exactly once, before any other
         // Purchases API is called. See DailyQuoteConfig.revenueCatAPIKey
         // for how to swap in your production key.
+        #if DEBUG
+        Purchases.logLevel = .debug
+        #else
         Purchases.logLevel = .info
+        #endif
         Purchases.configure(withAPIKey: DailyQuoteConfig.revenueCatAPIKey)
     }
 
