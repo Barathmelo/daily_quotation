@@ -10,6 +10,9 @@ struct ContentView: View {
   @State private var feedCurrentIndex: Int = 0
   @State private var showPaywall = false
   @State private var isTabBarHidden = false
+  /// Locked once at the start of a drag so a midway twitch never flips
+  /// the tab between horizontal-swipe and vertical-scroll behavior.
+  @State private var lockedDragDirection: DragDirection? = nil
 
   init() {
     DailyQuoteSync.syncTodayIfNeeded()
@@ -130,22 +133,35 @@ struct ContentView: View {
   /// still get their events. The relatively large `minimumDistance`
   /// (45pt) gives horizontal ScrollViews (category / author pills on
   /// Explore) the first ~45pt of slop before this gesture even wakes
-  /// up — by then the ScrollView has already claimed the drag, so the
-  /// whole tab no longer slides sideways while flicking through pills.
+  /// up — by then the ScrollView has already claimed the drag.
+  ///
+  /// We also lock the direction on the first onChanged call: if the
+  /// first decisive movement is vertical, this gesture goes dormant
+  /// for the rest of the drag, so users scrolling the Explore page
+  /// with a slight horizontal jitter don't see the whole tab slide
+  /// sideways.
   private var dragGesture: some Gesture {
     DragGesture(minimumDistance: 45)
       .onChanged { value in
-        let isHorizontal = abs(value.translation.width) > abs(value.translation.height) * 1.2
-        guard isHorizontal else { return }
+        if lockedDragDirection == nil {
+          let absW = abs(value.translation.width)
+          let absH = abs(value.translation.height)
+          // Require clear horizontal intent (≥1.5x vertical) to claim
+          // the drag for tab switching; otherwise treat as vertical
+          // and stay out of the way.
+          lockedDragDirection = absW > absH * 1.5 ? .horizontal : .vertical
+        }
+
+        guard lockedDragDirection == .horizontal else { return }
         isInteracting = true
         translation = value.translation.width
       }
       .onEnded { value in
-        let threshold: CGFloat = 60
-        let dragWidth = value.translation.width
-        let isHorizontal = abs(value.translation.width) > abs(value.translation.height) * 1.2
+        defer { lockedDragDirection = nil }
 
-        if isHorizontal {
+        if lockedDragDirection == .horizontal {
+          let threshold: CGFloat = 60
+          let dragWidth = value.translation.width
           if dragWidth < -threshold {
             onSwipeToNextTab()
           } else if dragWidth > threshold {
@@ -198,6 +214,11 @@ struct ContentView: View {
     DailyQuoteSync.syncTodayIfNeeded()
     feedCurrentIndex = 0
   }
+}
+
+private enum DragDirection {
+  case horizontal
+  case vertical
 }
 
 /// Forward → 新页面从右过来  / 当前页面往左
