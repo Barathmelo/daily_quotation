@@ -15,6 +15,32 @@ enum SharedDefaults {
   }
 }
 
+// MARK: - Daily Reminder preferences (App ↔︎ NotificationManager)
+
+/// Three small UserDefaults entries that drive the local notification
+/// scheduling. Lives in the App Group so a future widget / intent could
+/// surface the same state without duplicating storage.
+enum ReminderPreferences {
+  private static let enabledKey = "reminder.enabled"
+  private static let hourKey = "reminder.hour"
+  private static let minuteKey = "reminder.minute"
+
+  static var isEnabled: Bool {
+    get { SharedDefaults.store.bool(forKey: enabledKey) }
+    set { SharedDefaults.store.set(newValue, forKey: enabledKey) }
+  }
+
+  static var hour: Int {
+    get { (SharedDefaults.store.object(forKey: hourKey) as? Int) ?? 9 }
+    set { SharedDefaults.store.set(newValue, forKey: hourKey) }
+  }
+
+  static var minute: Int {
+    get { (SharedDefaults.store.object(forKey: minuteKey) as? Int) ?? 0 }
+    set { SharedDefaults.store.set(newValue, forKey: minuteKey) }
+  }
+}
+
 // MARK: - Daily Quote Sync (App ↔︎ Widget)
 
 private struct DailyQuotePayload: Codable {

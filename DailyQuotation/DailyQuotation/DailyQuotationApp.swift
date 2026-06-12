@@ -32,6 +32,16 @@ struct DailyQuotationApp: App {
                     // Start the customer-info listener and pre-load offerings
                     // once the SwiftUI environment is up.
                     subscriptionManager.start()
+
+                    // Re-schedule the daily reminder so its body text reflects
+                    // *today's* quote (UNCalendarNotificationTrigger freezes
+                    // content at schedule time, so we re-arm on every launch).
+                    if ReminderPreferences.isEnabled {
+                        await NotificationManager.shared.scheduleDailyReminder(
+                            hour: ReminderPreferences.hour,
+                            minute: ReminderPreferences.minute
+                        )
+                    }
                 }
         }
     }
