@@ -151,7 +151,7 @@ struct QuoteSlideView: View {
   }
 
   private func fontForAppearance(size: CGFloat) -> Font {
-    .custom(appearance.font.fontName, size: size)
+    appearance.font.font(size: size)
   }
 
   /// Scales the user-selected base size down for longer quotes so a 160-char
@@ -399,7 +399,7 @@ struct QuoteSlideView: View {
     }) {
       VStack(spacing: 6) {
         Text("Aa")
-          .font(.custom(font.fontName, size: 22))
+          .font(font.font(size: 22))
         Text(font.displayName)
           .font(.system(size: 13, weight: .medium))
       }

@@ -140,7 +140,7 @@ struct DailyQuotationWidgetEntryView: View {
     let lengthFactor = quoteScaleFactor(for: entry.quote.text.count)
     let familyFactor = familyFontFactor
     let size = baseSize * lengthFactor * familyFactor
-    return .custom(entry.appearance.font.fontName, size: size)
+    return entry.appearance.font.font(size: size)
   }
 
   private var familyFontFactor: CGFloat {

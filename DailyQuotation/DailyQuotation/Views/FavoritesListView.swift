@@ -151,7 +151,7 @@ struct FavoritesListView: View {
     }
     
     private var fontForAppearance: Font {
-        .custom(appearance.font.fontName, size: 20)
+        appearance.font.font(size: 20)
     }
 }
 
