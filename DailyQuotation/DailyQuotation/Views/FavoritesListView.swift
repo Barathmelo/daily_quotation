@@ -5,7 +5,6 @@ struct FavoritesListView: View {
     @ObservedObject var favoritesManager = FavoritesManager.shared
     @Binding var appearance: AppearanceSettings
     @State private var showingSettings = false
-    @State private var showingPaywall = false
 
     var body: some View {
         ZStack {
@@ -29,18 +28,7 @@ struct FavoritesListView: View {
             }
         }
         .sheet(isPresented: $showingSettings) {
-            SettingsSheet(onRequirePaywall: {
-                // Wait for the sheet dismiss animation to settle before
-                // presenting another sheet — SwiftUI refuses to stack two
-                // sheets in the same frame.
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                    showingPaywall = true
-                }
-            })
-            .environmentObject(subscriptionManager)
-        }
-        .sheet(isPresented: $showingPaywall) {
-            PaywallView()
+            SettingsSheet()
                 .environmentObject(subscriptionManager)
         }
     }

@@ -4,24 +4,16 @@ import SwiftUI
 /// Lightweight settings hub presented from the Favorites top-right gear.
 ///
 /// Currently exposes:
-/// - History Calendar (premium-gated — taps from non-premium users dismiss
-///   the sheet and open the paywall instead)
 /// - Manage Subscription (delegates to RC `CustomerCenterView`)
 /// - App version
 ///
-/// M3 will extend this with daily-reminder time picker and category
-/// preferences. The shape (NavigationStack + List sections) is chosen so
-/// new rows just slot in without restructuring.
+/// History Calendar lives in the Explore tab (single source of truth).
+/// M3 will append the Daily Reminder toggle + time picker here.
 struct SettingsSheet: View {
   @EnvironmentObject private var subscriptionManager: RevenueCatManager
   @Environment(\.dismiss) private var dismiss
 
-  /// Called when the user taps a premium-gated row while not subscribed.
-  /// The parent (FavoritesListView) handles paywall presentation.
-  var onRequirePaywall: () -> Void = {}
-
   @State private var showingCustomerCenter = false
-  @State private var showingHistory = false
 
   private var appVersion: String {
     let dict = Bundle.main.infoDictionary
@@ -33,27 +25,6 @@ struct SettingsSheet: View {
   var body: some View {
     NavigationStack {
       List {
-        Section {
-          Button {
-            if subscriptionManager.isPremiumUser {
-              showingHistory = true
-            } else {
-              dismiss()
-              onRequirePaywall()
-            }
-          } label: {
-            row(
-              title: "History Calendar",
-              subtitle: subscriptionManager.isPremiumUser
-                ? "Browse past quotes by date"
-                : "Premium — browse quotes from any day",
-              systemImage: "calendar",
-              showLock: !subscriptionManager.isPremiumUser
-            )
-          }
-          .buttonStyle(.plain)
-        }
-
         Section {
           Button {
             showingCustomerCenter = true
@@ -87,28 +58,17 @@ struct SettingsSheet: View {
       .sheet(isPresented: $showingCustomerCenter) {
         CustomerCenterView()
       }
-      .sheet(isPresented: $showingHistory) {
-        HistoryCalendarView()
-          .environmentObject(subscriptionManager)
-      }
     }
   }
 
-  private func row(title: String, subtitle: String, systemImage: String, showLock: Bool = false) -> some View {
+  private func row(title: String, subtitle: String, systemImage: String) -> some View {
     HStack(spacing: 12) {
       Image(systemName: systemImage)
         .frame(width: 24)
         .foregroundStyle(.primary)
       VStack(alignment: .leading, spacing: 2) {
-        HStack(spacing: 6) {
-          Text(title)
-            .foregroundStyle(.primary)
-          if showLock {
-            Image(systemName: "lock.fill")
-              .font(.caption2)
-              .foregroundStyle(.yellow)
-          }
-        }
+        Text(title)
+          .foregroundStyle(.primary)
         Text(subtitle)
           .font(.caption)
           .foregroundStyle(.secondary)
