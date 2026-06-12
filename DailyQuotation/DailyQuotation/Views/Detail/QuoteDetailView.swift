@@ -30,6 +30,22 @@ struct QuoteDetailView: View {
     favoritesManager.isFavorite(quote)
   }
 
+  /// Mirrors the Feed card's length-based shrink so a 160-char quote doesn't
+  /// crowd this single-card detail view either. Detail uses a fixed 26pt
+  /// base because it has no per-screen typography controls.
+  private var adaptiveQuoteFontSize: CGFloat {
+    let base: CGFloat = 26
+    let length = quote.text.count
+    let scale: CGFloat
+    switch length {
+    case ..<60: scale = 1.0
+    case ..<100: scale = 0.88
+    case ..<140: scale = 0.77
+    default: scale = 0.66
+    }
+    return base * scale
+  }
+
   var body: some View {
     ZStack {
       GradientColors.gradient(for: gradientIndex)
@@ -39,10 +55,11 @@ struct QuoteDetailView: View {
         Spacer()
 
         Text("\u{201C}\(quote.text)\u{201D}")
-          .font(.system(size: 26, weight: .regular, design: .serif))
+          .font(.system(size: adaptiveQuoteFontSize, weight: .regular, design: .serif))
           .foregroundColor(.white)
           .multilineTextAlignment(.center)
-          .lineSpacing(8)
+          .lineSpacing(max(4, adaptiveQuoteFontSize * 0.28))
+          .minimumScaleFactor(0.7)
           .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 5)
           .padding(.horizontal, 28)
 
