@@ -9,15 +9,17 @@ struct CategoryQuotesView: View {
   @EnvironmentObject private var subscriptionManager: RevenueCatManager
 
   var body: some View {
-    List {
-      ForEach(quotes) { q in
-        NavigationLink(value: NavTarget.quote(q)) {
-          QuoteListRow(quote: q)
+    ScrollView {
+      LazyVStack(spacing: 12) {
+        ForEach(quotes) { q in
+          NavigationLink(value: NavTarget.quote(q)) {
+            QuoteListRow(quote: q)
+          }
+          .buttonStyle(.plain)
         }
       }
+      .padding(16)
     }
-    .listStyle(.plain)
-    .scrollContentBackground(.hidden)
     .background(Color.black.ignoresSafeArea())
     .navigationTitle(categoryName.capitalized)
     .navigationBarTitleDisplayMode(.inline)

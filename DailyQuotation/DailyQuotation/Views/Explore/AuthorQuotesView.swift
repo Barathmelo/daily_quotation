@@ -9,15 +9,17 @@ struct AuthorQuotesView: View {
   @EnvironmentObject private var subscriptionManager: RevenueCatManager
 
   var body: some View {
-    List {
-      ForEach(quotes) { q in
-        NavigationLink(value: NavTarget.quote(q)) {
-          QuoteListRow(quote: q)
+    ScrollView {
+      LazyVStack(spacing: 12) {
+        ForEach(quotes) { q in
+          NavigationLink(value: NavTarget.quote(q)) {
+            QuoteListRow(quote: q)
+          }
+          .buttonStyle(.plain)
         }
       }
+      .padding(16)
     }
-    .listStyle(.plain)
-    .scrollContentBackground(.hidden)
     .background(Color.black.ignoresSafeArea())
     .navigationTitle(authorName)
     .navigationBarTitleDisplayMode(.inline)
@@ -25,24 +27,38 @@ struct AuthorQuotesView: View {
   }
 }
 
-/// Compact list row reused by both Category and Author drilldowns.
+/// Compact card row reused by both Category and Author drilldowns.
+/// Self-contained styling (no listRow* dependencies) so it works in
+/// any container — List, ScrollView, or LazyVStack.
 struct QuoteListRow: View {
   let quote: Quote
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 6) {
+    VStack(alignment: .leading, spacing: 8) {
       Text("\u{201C}\(quote.text)\u{201D}")
-        .font(.system(size: 14, weight: .medium, design: .serif))
+        .font(.system(size: 15, weight: .medium, design: .serif))
         .foregroundStyle(.white)
         .lineLimit(3)
         .multilineTextAlignment(.leading)
-      Text(quote.author.uppercased())
-        .font(.system(size: 10, weight: .semibold))
-        .tracking(1)
-        .foregroundStyle(.white.opacity(0.5))
+      HStack {
+        Text(quote.author.uppercased())
+          .font(.system(size: 11, weight: .semibold))
+          .tracking(1)
+          .foregroundStyle(.white.opacity(0.5))
+        if let category = quote.category, !category.isEmpty {
+          Text("• \(category.capitalized)")
+            .font(.system(size: 11))
+            .foregroundStyle(.white.opacity(0.35))
+        }
+        Spacer()
+      }
     }
-    .padding(.vertical, 6)
-    .listRowBackground(Color.white.opacity(0.04))
-    .listRowSeparatorTint(Color.white.opacity(0.08))
+    .padding(14)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background(
+      RoundedRectangle(cornerRadius: 14)
+        .fill(Color.white.opacity(0.06))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.white.opacity(0.08), lineWidth: 1))
+    )
   }
 }
