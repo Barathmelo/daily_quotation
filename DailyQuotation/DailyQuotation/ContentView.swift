@@ -102,11 +102,13 @@ struct ContentView: View {
   }
 
   private var pageTransition: AnyTransition {
+    // Pure horizontal slide, no opacity fade. The combined .opacity
+    // version had each tab cross-fade through half-transparency mid-
+    // transition, briefly revealing the black background behind both
+    // views and reading as a "flash" / flicker.
     .asymmetric(
-      insertion: .move(edge: transitionDirection == .forward ? .trailing : .leading)
-        .combined(with: .opacity),
+      insertion: .move(edge: transitionDirection == .forward ? .trailing : .leading),
       removal: .move(edge: transitionDirection == .forward ? .leading : .trailing)
-        .combined(with: .opacity)
     )
   }
 
