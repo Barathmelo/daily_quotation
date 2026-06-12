@@ -93,11 +93,12 @@ struct QuoteSlideView: View {
 
       // Quote text
       Text("\"\(quote.text)\"")
-        .font(fontForAppearance)
+        .font(fontForAppearance(size: adaptiveQuoteFontSize))
         .fontWeight(.regular)
         .foregroundColor(.white)
         .multilineTextAlignment(.center)
-        .lineSpacing(8)
+        .lineSpacing(adaptiveLineSpacing)
+        .minimumScaleFactor(0.7)
         .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 5)
 
       // Divider
@@ -149,15 +150,31 @@ struct QuoteSlideView: View {
       )
   }
 
-  private var fontForAppearance: Font {
-    switch appearance.font {
-    case .serif:
-      return .system(size: appearance.size.fontSize, design: .serif)
-    case .sans:
-      return .system(size: appearance.size.fontSize, design: .rounded)
-    case .mono:
-      return .system(size: appearance.size.fontSize, design: .monospaced)
+  private func fontForAppearance(size: CGFloat) -> Font {
+    .custom(appearance.font.fontName, size: size)
+  }
+
+  /// Scales the user-selected base size down for longer quotes so a 160-char
+  /// passage never crowds the card. Buckets are deliberately coarse — small
+  /// continuous shrinking caused visible "jitter" between slides whose quotes
+  /// are close in length.
+  private var adaptiveQuoteFontSize: CGFloat {
+    let base = appearance.size.fontSize
+    let length = quote.text.count
+    let scale: CGFloat
+    switch length {
+    case ..<60: scale = 1.0
+    case ..<100: scale = 0.85
+    case ..<140: scale = 0.72
+    default: scale = 0.6
     }
+    return base * scale
+  }
+
+  /// Line spacing should follow the active font size so visual rhythm stays
+  /// consistent regardless of how aggressively we shrank the text.
+  private var adaptiveLineSpacing: CGFloat {
+    max(4, adaptiveQuoteFontSize * 0.28)
   }
 
   private var actionButtons: some View {
@@ -382,7 +399,7 @@ struct QuoteSlideView: View {
     }) {
       VStack(spacing: 6) {
         Text("Aa")
-          .font(.system(size: 22, weight: .semibold, design: design(for: font)))
+          .font(.custom(font.fontName, size: 22))
         Text(font.displayName)
           .font(.system(size: 13, weight: .medium))
       }
@@ -433,17 +450,6 @@ struct QuoteSlideView: View {
 
   private var settingsAnimation: Animation {
     .spring(response: 0.25, dampingFraction: 0.85)
-  }
-
-  private func design(for font: FontFamily) -> Font.Design {
-    switch font {
-    case .serif:
-      return .serif
-    case .sans:
-      return .rounded
-    case .mono:
-      return .monospaced
-    }
   }
 
   private func fontSize(for size: TextSize) -> CGFloat {

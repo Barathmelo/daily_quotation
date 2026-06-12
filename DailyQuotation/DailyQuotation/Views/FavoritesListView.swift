@@ -151,14 +151,7 @@ struct FavoritesListView: View {
     }
     
     private var fontForAppearance: Font {
-        switch appearance.font {
-        case .serif:
-            return .system(size: 20, design: .serif)
-        case .sans:
-            return .system(size: 20, design: .rounded)
-        case .mono:
-            return .system(size: 20, design: .monospaced)
-        }
+        .custom(appearance.font.fontName, size: 20)
     }
 }
 

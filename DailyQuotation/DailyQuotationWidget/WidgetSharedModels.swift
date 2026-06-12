@@ -39,26 +39,37 @@ extension Quote {
 }
 
 enum FontFamily: String, Codable, CaseIterable {
-  case serif = "serif"
-  case sans = "sans"
-  case mono = "mono"
+  case didot = "didot"
+  case futura = "futura"
+  case savoye = "savoye"
+  case menlo = "menlo"
 
   var displayName: String {
     switch self {
-    case .serif: return "Classic"
-    case .sans: return "Modern"
-    case .mono: return "Type"
+    case .didot:  return "Editorial"
+    case .futura: return "Geometric"
+    case .savoye: return "Script"
+    case .menlo:  return "Mono"
     }
   }
 
+  var fontName: String {
+    switch self {
+    case .didot:  return "Didot"
+    case .futura: return "Futura"
+    case .savoye: return "Savoye LET"
+    case .menlo:  return "Menlo"
+    }
+  }
+
+  /// Used by `quoteFont` below as a soft fallback when Font.custom
+  /// can't resolve the family in some legacy contexts.
   var fontDesign: Font.Design {
     switch self {
-    case .serif:
-      return .serif
-    case .sans:
-      return .rounded
-    case .mono:
-      return .monospaced
+    case .didot:  return .serif
+    case .futura: return .default
+    case .savoye: return .serif
+    case .menlo:  return .monospaced
     }
   }
 }
@@ -81,11 +92,11 @@ struct AppearanceSettings: Codable, Hashable {
   var font: FontFamily
   var size: TextSize
 
-  static let `default` = AppearanceSettings(font: .serif, size: .medium)
+  static let `default` = AppearanceSettings(font: .didot, size: .medium)
 }
 
 extension AppearanceSettings {
   var quoteFont: Font {
-    .system(size: size.fontSize, design: font.fontDesign)
+    .custom(font.fontName, size: size.fontSize)
   }
 }

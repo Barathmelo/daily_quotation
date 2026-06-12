@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quoteary — Font Preview</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0a0a0c;
+    --fg: #f4f4f6;
+    --muted: rgba(255,255,255,.55);
+    --border: rgba(255,255,255,.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  header {
+    padding: 48px 24px 16px;
+    text-align: center;
+  }
+  h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .lede {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .group-label {
+    max-width: 900px;
+    margin: 32px auto 12px;
+    padding: 0 24px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+  @media (min-width: 720px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+  }
+  .card {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px 22px;
+    background: linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+    cursor: pointer;
+    transition: border-color .15s, transform .15s;
+  }
+  .card:hover { border-color: rgba(255,255,255,.22); }
+  .card.selected {
+    border-color: rgba(100,200,255,.7);
+    box-shadow: 0 0 0 2px rgba(100,200,255,.25);
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .name {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: transparent;
+  }
+  .card.selected .check {
+    background: rgba(100,200,255,.85);
+    border-color: rgba(100,200,255,.85);
+    color: #052033;
+  }
+  .quote {
+    margin: 0 0 18px;
+    color: var(--fg);
+    line-height: 1.35;
+  }
+  .author {
+    margin: 0;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.6);
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  /* ------ Quote-size by category ------ */
+  .serif .quote, .sans .quote { font-size: 24px; }
+  .script .quote { font-size: 32px; line-height: 1.25; }
+  .mono .quote { font-size: 20px; }
+
+  /* ------ Font families (iOS / macOS system fonts) ------ */
+  .f-iowan       { font-family: "Iowan Old Style", "Iowan", Georgia, serif; font-weight: 400; }
+  .f-hoefler     { font-family: "Hoefler Text", Georgia, serif; font-weight: 400; }
+  .f-charter     { font-family: "Charter", Georgia, serif; font-weight: 400; }
+  .f-newyork     { font-family: "New York", "ui-serif", Georgia, serif; font-weight: 500; }
+  .f-georgia     { font-family: Georgia, serif; font-weight: 400; }
+  .f-palatino    { font-family: "Palatino", "Palatino Linotype", "Book Antiqua", serif; font-weight: 400; }
+  .f-baskerville { font-family: "Baskerville", serif; font-weight: 400; }
+  .f-didot       { font-family: "Didot", "Bodoni 72", serif; font-weight: 400; }
+
+  .f-avenir      { font-family: "Avenir Next", "Avenir", -apple-system, sans-serif; font-weight: 500; }
+  .f-futura      { font-family: "Futura", "Futura PT", sans-serif; font-weight: 500; }
+  .f-optima      { font-family: "Optima", sans-serif; font-weight: 400; }
+  .f-gill        { font-family: "Gill Sans", "Gill Sans MT", sans-serif; font-weight: 400; }
+  .f-helvetica   { font-family: "Helvetica Neue", "Helvetica", sans-serif; font-weight: 400; }
+
+  .f-snell       { font-family: "Snell Roundhand", "Apple Chancery", cursive; font-weight: 700; }
+  .f-bradley     { font-family: "Bradley Hand", "Bradley Hand ITC", cursive; font-weight: 700; }
+  .f-savoye      { font-family: "Savoye LET", "Snell Roundhand", cursive; }
+  .f-zapfino     { font-family: "Zapfino", cursive; font-size: 22px !important; }
+
+  .f-menlo       { font-family: "Menlo", "SF Mono", monospace; font-weight: 400; }
+  .f-courier     { font-family: "Courier", "Courier New", monospace; font-weight: 700; }
+
+  /* ------ Selection summary footer ------ */
+  .summary {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    padding: 12px 18px;
+    background: rgba(40,40,44,.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 999px;
+    font-size: 13px;
+    box-shadow: 0 12px 36px rgba(0,0,0,.5);
+    display: none;
+  }
+  .summary.visible { display: block; }
+  .summary code {
+    background: rgba(100,200,255,.18);
+    color: rgba(180,225,255,1);
+    padding: 1px 7px;
+    border-radius: 6px;
+    margin: 0 3px;
+    font-family: ui-monospace, "SF Mono", monospace;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Quoteary — Font Preview</h1>
+  <p class="lede">
+    Tap a card to mark your favorites; the names you pick show up in the
+    bottom pill. Send those names back and I'll wire them up.
+    Best viewed in Safari on macOS or iPhone.
+  </p>
+</header>
+
+<!-- ============ SERIF ============ -->
+<div class="group-label">Serif · 古典 / 文学感</div>
+<div class="grid">
+
+  <article class="card serif" data-id="Iowan Old Style">
+    <div class="card-meta">
+      <span class="name">Iowan Old Style</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-iowan">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card serif" data-id="Hoefler Text">
+    <div class="card-meta">
+      <span class="name">Hoefler Text</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-hoefler">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card serif" data-id="Charter">
+    <div class="card-meta">
+      <span class="name">Charter</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-charter">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card serif" data-id="New York">
+    <div class="card-meta">
+      <span class="name">New York (Apple)</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-newyork">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card serif" data-id="Georgia">
+    <div class="card-meta">
+      <span class="name">Georgia</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-georgia">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card serif" data-id="Palatino">
+    <div class="card-meta">
+      <span class="name">Palatino</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-palatino">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card serif" data-id="Baskerville">
+    <div class="card-meta">
+      <span class="name">Baskerville</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-baskerville">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card serif" data-id="Didot">
+    <div class="card-meta">
+      <span class="name">Didot</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-didot">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+</div>
+
+<!-- ============ SANS ============ -->
+<div class="group-label">Sans-Serif · 现代 / 简洁</div>
+<div class="grid">
+
+  <article class="card sans" data-id="Avenir Next">
+    <div class="card-meta">
+      <span class="name">Avenir Next</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-avenir">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card sans" data-id="Futura">
+    <div class="card-meta">
+      <span class="name">Futura</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-futura">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card sans" data-id="Optima">
+    <div class="card-meta">
+      <span class="name">Optima</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-optima">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card sans" data-id="Gill Sans">
+    <div class="card-meta">
+      <span class="name">Gill Sans</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-gill">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card sans" data-id="Helvetica Neue">
+    <div class="card-meta">
+      <span class="name">Helvetica Neue</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-helvetica">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+</div>
+
+<!-- ============ SCRIPT ============ -->
+<div class="group-label">Script · 手写 / 艺术</div>
+<div class="grid">
+
+  <article class="card script" data-id="Snell Roundhand">
+    <div class="card-meta">
+      <span class="name">Snell Roundhand</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-snell">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card script" data-id="Bradley Hand">
+    <div class="card-meta">
+      <span class="name">Bradley Hand</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-bradley">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card script" data-id="Savoye LET">
+    <div class="card-meta">
+      <span class="name">Savoye LET</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-savoye">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card script" data-id="Zapfino">
+    <div class="card-meta">
+      <span class="name">Zapfino</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-zapfino">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+</div>
+
+<!-- ============ MONOSPACE ============ -->
+<div class="group-label">Monospace · 等宽 / 打字机感</div>
+<div class="grid">
+
+  <article class="card mono" data-id="Menlo">
+    <div class="card-meta">
+      <span class="name">Menlo</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-menlo">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+
+  <article class="card mono" data-id="Courier">
+    <div class="card-meta">
+      <span class="name">Courier</span>
+      <span class="check">✓</span>
+    </div>
+    <p class="quote f-courier">"I think humor is important for all of us, and a great comedian is a great treasure."</p>
+    <p class="author f-avenir">Leila Josefowicz</p>
+  </article>
+</div>
+
+<div id="summary" class="summary"></div>
+
+<script>
+  const summary = document.getElementById('summary');
+  const selected = new Set();
+
+  function render() {
+    if (selected.size === 0) {
+      summary.classList.remove('visible');
+      summary.innerHTML = '';
+      return;
+    }
+    const tags = [...selected].map(n => `<code>${n}</code>`).join(' ');
+    summary.innerHTML = `${selected.size} picked: ${tags}`;
+    summary.classList.add('visible');
+  }
+
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.dataset.id;
+      if (selected.has(id)) {
+        selected.delete(id);
+        card.classList.remove('selected');
+      } else {
+        selected.add(id);
+        card.classList.add('selected');
+      }
+      render();
+    });
+  });
+</script>
+</body>
+</html>
