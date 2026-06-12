@@ -11,6 +11,7 @@ struct QuoteSlideView: View {
   @Binding var appearance: AppearanceSettings
 
   @State private var showSettings = false
+  @State private var showShareSheet = false
   @State private var favoriteVisualOverride: Bool? = nil
 
   private var isFavorite: Bool {
@@ -47,6 +48,13 @@ struct QuoteSlideView: View {
       settingsOverlay,
       alignment: .bottom
     )
+    .sheet(isPresented: $showShareSheet) {
+      ShareCardSheet(
+        quote: quote,
+        gradientIndex: index,
+        isPremium: isPremium
+      )
+    }
     .onChange(of: isFavorite) { _ in
       favoriteVisualOverride = nil
     }
@@ -162,6 +170,29 @@ struct QuoteSlideView: View {
                       Color.white.opacity(displayedFavoriteState ? 0.15 : 0.15),
                       lineWidth: displayedFavoriteState ? 1.5 : 1
                     )
+                )
+                .shadow(color: Color.black.opacity(0.25), radius: 10, x: 0, y: 5)
+            )
+        }
+      }
+
+      // Share button
+      VStack(spacing: 8) {
+        Button(action: {
+          HapticManager.light()
+          showShareSheet = true
+        }) {
+          Image(systemName: "square.and.arrow.up")
+            .font(.system(size: 24))
+            .foregroundColor(.white)
+            .opacity(0.9)
+            .frame(width: 56, height: 56)
+            .background(
+              Circle()
+                .fill(frostedCircleGradient(isActive: false))
+                .overlay(
+                  Circle()
+                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
                 )
                 .shadow(color: Color.black.opacity(0.25), radius: 10, x: 0, y: 5)
             )
