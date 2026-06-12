@@ -1,10 +1,11 @@
-import RevenueCatUI
 import SwiftUI
 
 struct FavoritesListView: View {
+    @EnvironmentObject private var subscriptionManager: RevenueCatManager
     @ObservedObject var favoritesManager = FavoritesManager.shared
     @Binding var appearance: AppearanceSettings
-    @State private var showingCustomerCenter = false
+    @State private var showingSettings = false
+    @State private var showingPaywall = false
 
     var body: some View {
         ZStack {
@@ -20,23 +21,35 @@ struct FavoritesListView: View {
             VStack {
                 HStack {
                     Spacer()
-                    customerCenterButton
+                    settingsButton
                         .padding(.trailing, 16)
                         .padding(.top, 60)
                 }
                 Spacer()
             }
         }
-        .sheet(isPresented: $showingCustomerCenter) {
-            CustomerCenterView()
+        .sheet(isPresented: $showingSettings) {
+            SettingsSheet(onRequirePaywall: {
+                // Wait for the sheet dismiss animation to settle before
+                // presenting another sheet — SwiftUI refuses to stack two
+                // sheets in the same frame.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    showingPaywall = true
+                }
+            })
+            .environmentObject(subscriptionManager)
+        }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
+                .environmentObject(subscriptionManager)
         }
     }
 
-    private var customerCenterButton: some View {
+    private var settingsButton: some View {
         Button {
-            showingCustomerCenter = true
+            showingSettings = true
         } label: {
-            Image(systemName: "person.crop.circle")
+            Image(systemName: "gearshape")
                 .font(.system(size: 22, weight: .medium))
                 .foregroundColor(.white.opacity(0.85))
                 .frame(width: 40, height: 40)
