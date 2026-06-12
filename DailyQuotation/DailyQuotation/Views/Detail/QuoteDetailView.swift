@@ -65,15 +65,13 @@ struct QuoteDetailView: View {
         Spacer()
 
         actionRow
-          // ContentView keeps a floating TabBar overlay on top of all
-          // pages (it's a hand-rolled bar, not SwiftUI's TabView), so a
-          // pushed detail view still has to make room for it manually.
-          .padding(.bottom, 130)
+          .padding(.bottom, 48)
       }
     }
     .navigationTitle("Quote")
     .navigationBarTitleDisplayMode(.inline)
     .toolbarColorScheme(.dark, for: .navigationBar)
+    .hidesFloatingTabBar()
     .sheet(isPresented: $showShareSheet) {
       ShareCardSheet(
         quote: quote,

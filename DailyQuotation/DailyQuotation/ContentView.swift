@@ -9,6 +9,7 @@ struct ContentView: View {
   @State private var isInteracting = false
   @State private var feedCurrentIndex: Int = 0
   @State private var showPaywall = false
+  @State private var isTabBarHidden = false
 
   init() {
     DailyQuoteSync.syncTodayIfNeeded()
@@ -31,19 +32,27 @@ struct ContentView: View {
     ZStack {
       contentLayer
 
-      VStack {
-        Spacer()
-        TabBarView(
-          currentView: currentView,
-          onSelect: handleTabSelection
-        )
-        .padding(.bottom, 32)
+      if !isTabBarHidden {
+        VStack {
+          Spacer()
+          TabBarView(
+            currentView: currentView,
+            onSelect: handleTabSelection
+          )
+          .padding(.bottom, 32)
+        }
+        .padding(.horizontal, 0)
+        .ignoresSafeArea(edges: .bottom)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
       }
-      .padding(.horizontal, 0)
-      .ignoresSafeArea(edges: .bottom)
     }
     .background(Color.black.ignoresSafeArea())
     .onAppear(perform: syncDailyQuoteAndIndex)
+    .onPreferenceChange(TabBarHiddenPreferenceKey.self) { hidden in
+      withAnimation(.easeInOut(duration: 0.22)) {
+        isTabBarHidden = hidden
+      }
+    }
     .sheet(isPresented: $showPaywall) {
       PaywallView()
         .environmentObject(subscriptionManager)

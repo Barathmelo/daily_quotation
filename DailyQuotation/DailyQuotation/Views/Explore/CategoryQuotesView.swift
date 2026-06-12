@@ -17,8 +17,6 @@ struct CategoryQuotesView: View {
           }
           .buttonStyle(.plain)
         }
-        // Breathing room for the floating tab bar overlay.
-        Color.clear.frame(height: 100)
       }
       .padding(16)
     }
@@ -26,5 +24,6 @@ struct CategoryQuotesView: View {
     .navigationTitle(categoryName.capitalized)
     .navigationBarTitleDisplayMode(.inline)
     .toolbarColorScheme(.dark, for: .navigationBar)
+    .hidesFloatingTabBar()
   }
 }
