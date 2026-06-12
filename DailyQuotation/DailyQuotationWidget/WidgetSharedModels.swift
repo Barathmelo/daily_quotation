@@ -49,7 +49,7 @@ enum FontFamily: String, Codable, CaseIterable {
     switch self {
     case .serif:  return "Classic"
     case .didot:  return "Editorial"
-    case .futura: return "Geometric"
+    case .futura: return "Modern"
     case .savoye: return "Script"
     case .menlo:  return "Mono"
     }
