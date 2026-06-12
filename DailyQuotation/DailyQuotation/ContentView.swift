@@ -69,6 +69,12 @@ struct ContentView: View {
           .zIndex(currentView == .feed ? 1 : 0)
       }
 
+      if currentView == .explore {
+        pageView(for: .explore)
+          .transition(pageTransition)
+          .zIndex(currentView == .explore ? 1 : 0)
+      }
+
       if currentView == .favorites {
         pageView(for: .favorites)
           .transition(pageTransition)
@@ -99,8 +105,12 @@ struct ContentView: View {
       )
       .id(subscriptionManager.isPremiumUser)
       .environmentObject(subscriptionManager)
+    case .explore:
+      ExploreView()
+        .environmentObject(subscriptionManager)
     case .favorites:
       FavoritesListView(appearance: appearance)
+        .environmentObject(subscriptionManager)
     }
   }
 

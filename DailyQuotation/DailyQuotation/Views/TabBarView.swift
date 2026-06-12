@@ -30,7 +30,13 @@ struct TabBarView: View {
 
   private func tabButton(for view: AppView) -> some View {
     let isSelected = currentView == view
-    let accentColor: Color = view == .favorites ? .red : .white
+    let accentColor: Color = {
+      switch view {
+      case .feed: return .white
+      case .explore: return .cyan
+      case .favorites: return .red
+      }
+    }()
 
     return Button {
       guard currentView != view else { return }
@@ -64,6 +70,8 @@ struct TabBarView: View {
     switch view {
     case .feed:
       return isSelected ? "square.stack.fill" : "square.stack"
+    case .explore:
+      return isSelected ? "magnifyingglass.circle.fill" : "magnifyingglass"
     case .favorites:
       return isSelected ? "heart.fill" : "heart"
     }

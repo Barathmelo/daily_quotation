@@ -2,14 +2,17 @@ import Foundation
 
 enum AppView: String, CaseIterable {
     case feed = "FEED"
+    case explore = "EXPLORE"
     case favorites = "FAVORITES"
 
     var order: Int {
         switch self {
         case .feed:
             return 0
-        case .favorites:
+        case .explore:
             return 1
+        case .favorites:
+            return 2
         }
     }
 
