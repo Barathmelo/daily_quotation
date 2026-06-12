@@ -25,15 +25,15 @@ struct ShareCardSheet: View {
     )
   }
 
+  /// Source canvas size that ShareCardView is designed at (also the
+  /// exported image's pixel dimensions).
+  private let sourceSize = CGSize(width: 1080, height: 1920)
+
   var body: some View {
     NavigationStack {
       ScrollView {
         VStack(spacing: 24) {
-          sourceCard
-            .aspectRatio(9.0 / 16.0, contentMode: .fit)
-            .frame(maxWidth: .infinity)
-            .clipShape(RoundedRectangle(cornerRadius: 24))
-            .shadow(color: .black.opacity(0.5), radius: 20, y: 8)
+          scaledPreview
             .padding(.horizontal, 32)
 
           if isPremium {
@@ -67,6 +67,24 @@ struct ShareCardSheet: View {
         await renderImage()
       }
     }
+  }
+
+  /// Scale the 1080×1920 source down to fit the available width while
+  /// preserving aspect ratio. `scaleEffect` doesn't change layout
+  /// participation, so we wrap it in an outer `.frame` matched to the
+  /// geometry to reserve the correct space in the scroll view.
+  private var scaledPreview: some View {
+    GeometryReader { proxy in
+      let scale = proxy.size.width / sourceSize.width
+      sourceCard
+        .frame(width: sourceSize.width, height: sourceSize.height)
+        .scaleEffect(scale, anchor: .topLeading)
+        .frame(width: proxy.size.width, height: sourceSize.height * scale)
+    }
+    .aspectRatio(sourceSize.width / sourceSize.height, contentMode: .fit)
+    .frame(maxWidth: .infinity)
+    .clipShape(RoundedRectangle(cornerRadius: 24))
+    .shadow(color: .black.opacity(0.5), radius: 20, y: 8)
   }
 
   @ViewBuilder
