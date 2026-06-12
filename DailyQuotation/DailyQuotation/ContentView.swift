@@ -64,13 +64,7 @@ struct ContentView: View {
     tabContentLayer
       .offset(x: translation)
       .animation(translationSpring, value: translation)
-      // Use .gesture (not .simultaneousGesture) so child scroll views
-      // take priority. A horizontal ScrollView inside Explore consumes
-      // the touch before this gesture sees it, so swiping across the
-      // category / author pills no longer yanks the whole tab sideways.
-      // Other areas (cards, padding, History entry) fall through to
-      // this gesture and still allow swipe-to-switch-tab.
-      .gesture(dragGesture)
+      .simultaneousGesture(dragGesture)
       .ignoresSafeArea()
   }
 
@@ -131,13 +125,15 @@ struct ContentView: View {
 
   // MARK: - Gestures
   ///
-  /// Active on every tab. Child scroll views (horizontal pills on
-  /// Explore, vertical lists everywhere) get gesture priority because
-  /// this is attached via `.gesture()` (not `.simultaneousGesture()`),
-  /// so this handler only fires when the touch isn't already claimed
-  /// by something more specific.
+  /// Active on every tab. We use `.simultaneousGesture` upstream so
+  /// child gestures (FeedView's vertical drag, scroll views, etc.)
+  /// still get their events. The relatively large `minimumDistance`
+  /// (45pt) gives horizontal ScrollViews (category / author pills on
+  /// Explore) the first ~45pt of slop before this gesture even wakes
+  /// up — by then the ScrollView has already claimed the drag, so the
+  /// whole tab no longer slides sideways while flicking through pills.
   private var dragGesture: some Gesture {
-    DragGesture()
+    DragGesture(minimumDistance: 45)
       .onChanged { value in
         let isHorizontal = abs(value.translation.width) > abs(value.translation.height) * 1.2
         guard isHorizontal else { return }
