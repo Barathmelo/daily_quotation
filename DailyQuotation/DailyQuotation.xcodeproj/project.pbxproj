@@ -469,7 +469,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = A4X27GHYV3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DailyQuotationWidget/Info.plist;
@@ -502,7 +502,7 @@
 				CODE_SIGN_ENTITLEMENTS = DailyQuotationWidgetExtensionRelease.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = A4X27GHYV3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DailyQuotationWidget/Info.plist;
