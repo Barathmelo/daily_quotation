@@ -64,7 +64,13 @@ struct ContentView: View {
     tabContentLayer
       .offset(x: translation)
       .animation(translationSpring, value: translation)
-      .simultaneousGesture(dragGesture)
+      // Use .gesture (not .simultaneousGesture) so child scroll views
+      // take priority. A horizontal ScrollView inside Explore consumes
+      // the touch before this gesture sees it, so swiping across the
+      // category / author pills no longer yanks the whole tab sideways.
+      // Other areas (cards, padding, History entry) fall through to
+      // this gesture and still allow swipe-to-switch-tab.
+      .gesture(dragGesture)
       .ignoresSafeArea()
   }
 
@@ -125,22 +131,20 @@ struct ContentView: View {
 
   // MARK: - Gestures
   ///
-  /// Only active on the Feed tab. Explore / Favorites contain their own
-  /// horizontal scroll views (category pills, author pills) which would
-  /// otherwise fight this gesture for the same touch — small horizontal
-  /// drags inside those scrollers would yank the whole tab sideways.
-  /// Users on Explore / Favorites can still switch tabs via the bar.
+  /// Active on every tab. Child scroll views (horizontal pills on
+  /// Explore, vertical lists everywhere) get gesture priority because
+  /// this is attached via `.gesture()` (not `.simultaneousGesture()`),
+  /// so this handler only fires when the touch isn't already claimed
+  /// by something more specific.
   private var dragGesture: some Gesture {
     DragGesture()
       .onChanged { value in
-        guard currentView == .feed else { return }
         let isHorizontal = abs(value.translation.width) > abs(value.translation.height) * 1.2
         guard isHorizontal else { return }
         isInteracting = true
         translation = value.translation.width
       }
       .onEnded { value in
-        guard currentView == .feed else { return }
         let threshold: CGFloat = 60
         let dragWidth = value.translation.width
         let isHorizontal = abs(value.translation.width) > abs(value.translation.height) * 1.2
