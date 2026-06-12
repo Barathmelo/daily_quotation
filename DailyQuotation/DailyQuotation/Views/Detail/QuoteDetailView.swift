@@ -65,7 +65,10 @@ struct QuoteDetailView: View {
         Spacer()
 
         actionRow
-          .padding(.bottom, 32)
+          // ContentView keeps a floating TabBar overlay on top of all
+          // pages (it's a hand-rolled bar, not SwiftUI's TabView), so a
+          // pushed detail view still has to make room for it manually.
+          .padding(.bottom, 130)
       }
     }
     .navigationTitle("Quote")

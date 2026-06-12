@@ -17,6 +17,8 @@ struct AuthorQuotesView: View {
           }
           .buttonStyle(.plain)
         }
+        // Breathing room for the floating tab bar overlay.
+        Color.clear.frame(height: 100)
       }
       .padding(16)
     }
