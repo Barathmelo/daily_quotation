@@ -351,7 +351,7 @@ struct QuoteSlideView: View {
 
   private var typefaceSection: some View {
     VStack(alignment: .leading, spacing: 12) {
-      sectionLabel("TYPEFACE")
+      sectionLabel("Fonts")
       HStack(spacing: 12) {
         ForEach(FontFamily.allCases, id: \.self) { font in
           typefaceButton(for: font)
@@ -362,7 +362,7 @@ struct QuoteSlideView: View {
 
   private var sizeSection: some View {
     VStack(alignment: .leading, spacing: 12) {
-      sectionLabel("SIZE")
+      sectionLabel("Size")
       HStack(spacing: 12) {
         ForEach(TextSize.allCases, id: \.self) { size in
           sizeButton(for: size)
@@ -378,9 +378,8 @@ struct QuoteSlideView: View {
 
   private func sectionLabel(_ title: String) -> some View {
     Text(title)
-      .font(.system(size: 14, weight: .semibold))
-      .tracking(1)
-      .foregroundColor(.white.opacity(0.5))
+      .font(.system(size: 15, weight: .semibold))
+      .foregroundColor(.white.opacity(0.6))
       .padding(.leading, 2)
   }
 
