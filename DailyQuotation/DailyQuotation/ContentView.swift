@@ -124,16 +124,23 @@ struct ContentView: View {
   }
 
   // MARK: - Gestures
+  ///
+  /// Only active on the Feed tab. Explore / Favorites contain their own
+  /// horizontal scroll views (category pills, author pills) which would
+  /// otherwise fight this gesture for the same touch — small horizontal
+  /// drags inside those scrollers would yank the whole tab sideways.
+  /// Users on Explore / Favorites can still switch tabs via the bar.
   private var dragGesture: some Gesture {
     DragGesture()
       .onChanged { value in
-        // 水平位移 > 垂直位移的 1.2 倍时响应
+        guard currentView == .feed else { return }
         let isHorizontal = abs(value.translation.width) > abs(value.translation.height) * 1.2
         guard isHorizontal else { return }
         isInteracting = true
         translation = value.translation.width
       }
       .onEnded { value in
+        guard currentView == .feed else { return }
         let threshold: CGFloat = 60
         let dragWidth = value.translation.width
         let isHorizontal = abs(value.translation.width) > abs(value.translation.height) * 1.2

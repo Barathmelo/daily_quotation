@@ -1,42 +1,35 @@
 import SwiftUI
 
-/// Top-level Explore tab. Always-on search bar at the top; when the
-/// query is non-empty the body switches to a results list. Otherwise we
-/// surface curated entry points: today's quote, category pills, top
-/// authors, and the (premium-gated) History Calendar entry.
+/// Top-level Explore tab. Surfaces curated entry points: today's quote
+/// (matches the first card of Feed for the current subscription tier),
+/// premium-gated category and author drilldowns, and the History
+/// Calendar entry.
 struct ExploreView: View {
   @EnvironmentObject private var subscriptionManager: RevenueCatManager
 
-  @State private var searchText: String = ""
-  @State private var debouncedQuery: String = ""
-  @State private var debounceTask: Task<Void, Never>?
+  @State private var navigationPath = NavigationPath()
   @State private var showingHistory = false
   @State private var showingPaywall = false
 
   private let index = QuoteIndex.shared
 
+  /// "Today's Pick" mirrors the first card the user would see on Feed
+  /// today, which depends on subscription tier (free users see a
+  /// different daily rotation than premium users). Constructing the
+  /// view-model is cheap and gives us a single source of truth for the
+  /// rotation algorithm.
   private var todaysQuote: Quote? {
-    DailyQuoteSync.loadTodayQuote()
-  }
-
-  private var searchResults: [Quote] {
-    index.search(debouncedQuery)
+    FeedViewModel(isPremium: subscriptionManager.isPremiumUser).quote(at: 0)
   }
 
   var body: some View {
-    NavigationStack {
+    NavigationStack(path: $navigationPath) {
       ScrollView {
         VStack(alignment: .leading, spacing: 28) {
-          searchField
-
-          if !debouncedQuery.isEmpty {
-            searchResultsSection
-          } else {
-            todaysPickSection
-            categoriesSection
-            authorsSection
-            historyEntrySection
-          }
+          todaysPickSection
+          categoriesSection
+          authorsSection
+          historyEntrySection
 
           Color.clear.frame(height: 100)
         }
@@ -67,70 +60,9 @@ struct ExploreView: View {
           .environmentObject(subscriptionManager)
       }
     }
-    .onChange(of: searchText) { _, newValue in
-      debounceTask?.cancel()
-      debounceTask = Task { @MainActor in
-        try? await Task.sleep(for: .milliseconds(250))
-        guard !Task.isCancelled else { return }
-        debouncedQuery = newValue
-      }
-    }
   }
 
   // MARK: - Sections
-
-  private var searchField: some View {
-    HStack(spacing: 10) {
-      Image(systemName: "magnifyingglass")
-        .foregroundStyle(.white.opacity(0.6))
-      TextField("Search quotes or authors", text: $searchText)
-        .foregroundStyle(.white)
-        .tint(.cyan)
-        .autocorrectionDisabled()
-        .textInputAutocapitalization(.never)
-      if !searchText.isEmpty {
-        Button {
-          searchText = ""
-          debouncedQuery = ""
-        } label: {
-          Image(systemName: "xmark.circle.fill")
-            .foregroundStyle(.white.opacity(0.5))
-        }
-      }
-    }
-    .padding(.horizontal, 14)
-    .padding(.vertical, 12)
-    .background(
-      RoundedRectangle(cornerRadius: 14)
-        .fill(Color.white.opacity(0.08))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.white.opacity(0.12), lineWidth: 1))
-    )
-  }
-
-  @ViewBuilder
-  private var searchResultsSection: some View {
-    if searchResults.isEmpty {
-      VStack(spacing: 10) {
-        Image(systemName: "magnifyingglass")
-          .font(.system(size: 32))
-          .foregroundStyle(.white.opacity(0.4))
-        Text("No matches")
-          .foregroundStyle(.white.opacity(0.6))
-      }
-      .frame(maxWidth: .infinity)
-      .padding(.top, 40)
-    } else {
-      sectionHeader(title: "\(searchResults.count) results")
-      LazyVStack(spacing: 12) {
-        ForEach(searchResults) { quote in
-          NavigationLink(value: NavTarget.quote(quote)) {
-            quoteRow(quote)
-          }
-          .buttonStyle(.plain)
-        }
-      }
-    }
-  }
 
   @ViewBuilder
   private var todaysPickSection: some View {
@@ -145,11 +77,13 @@ struct ExploreView: View {
 
   @ViewBuilder
   private var categoriesSection: some View {
-    sectionHeader(title: "Browse by Category")
+    sectionHeader(title: "Browse by Category", showLock: !subscriptionManager.isPremiumUser)
     ScrollView(.horizontal, showsIndicators: false) {
       HStack(spacing: 10) {
         ForEach(index.topCategories.prefix(40), id: \.name) { item in
-          NavigationLink(value: NavTarget.category(item.name, index.byCategory[item.name] ?? [])) {
+          Button {
+            handleCategoryTap(name: item.name)
+          } label: {
             pill(text: item.name.capitalized, badge: "\(item.count)")
           }
           .buttonStyle(.plain)
@@ -160,11 +94,13 @@ struct ExploreView: View {
 
   @ViewBuilder
   private var authorsSection: some View {
-    sectionHeader(title: "Top Authors")
+    sectionHeader(title: "Top Authors", showLock: !subscriptionManager.isPremiumUser)
     ScrollView(.horizontal, showsIndicators: false) {
       HStack(spacing: 10) {
         ForEach(index.topAuthors.prefix(20), id: \.name) { item in
-          NavigationLink(value: NavTarget.author(item.name, index.byAuthor[item.name] ?? [])) {
+          Button {
+            handleAuthorTap(name: item.name)
+          } label: {
             pill(text: item.name, badge: "\(item.count)")
           }
           .buttonStyle(.plain)
@@ -220,14 +156,43 @@ struct ExploreView: View {
     }
   }
 
+  // MARK: - Actions
+
+  private func handleCategoryTap(name: String) {
+    if subscriptionManager.isPremiumUser {
+      let quotes = index.byCategory[name] ?? []
+      navigationPath.append(NavTarget.category(name, quotes))
+    } else {
+      HapticManager.warning()
+      showingPaywall = true
+    }
+  }
+
+  private func handleAuthorTap(name: String) {
+    if subscriptionManager.isPremiumUser {
+      let quotes = index.byAuthor[name] ?? []
+      navigationPath.append(NavTarget.author(name, quotes))
+    } else {
+      HapticManager.warning()
+      showingPaywall = true
+    }
+  }
+
   // MARK: - Reusable
 
-  private func sectionHeader(title: String) -> some View {
-    Text(title)
-      .font(.system(size: 13, weight: .semibold))
-      .tracking(1.5)
-      .foregroundStyle(.white.opacity(0.55))
-      .padding(.horizontal, 4)
+  private func sectionHeader(title: String, showLock: Bool = false) -> some View {
+    HStack(spacing: 6) {
+      Text(title)
+        .font(.system(size: 13, weight: .semibold))
+        .tracking(1.5)
+        .foregroundStyle(.white.opacity(0.55))
+      if showLock {
+        Image(systemName: "lock.fill")
+          .font(.system(size: 9))
+          .foregroundStyle(.yellow.opacity(0.8))
+      }
+    }
+    .padding(.horizontal, 4)
   }
 
   private func pill(text: String, badge: String) -> some View {
