@@ -14,6 +14,7 @@ struct ShareCardSheet: View {
 
   @State private var includeWatermark: Bool = true
   @State private var renderedImage: UIImage?
+  @State private var renderTask: Task<Void, Never>?
   @Environment(\.dismiss) private var dismiss
 
   /// Free users cannot drop the watermark, regardless of the toggle.
@@ -31,6 +32,7 @@ struct ShareCardSheet: View {
         if isPremium {
           includeWatermark = newValue
         } else {
+          HapticManager.warning()
           onRequirePaywall()
         }
       }
@@ -87,9 +89,25 @@ struct ShareCardSheet: View {
             .foregroundStyle(.white)
         }
       }
-      .task(id: effectiveWatermark) {
+      .task {
+        // Initial render on first appearance.
         await renderImage()
       }
+      .onChange(of: effectiveWatermark) { _, _ in
+        scheduleRender()
+      }
+    }
+  }
+
+  /// Re-render after a short pause so rapid toggling doesn't run
+  /// ImageRenderer (which is MainActor-bound and stalls the UI for the
+  /// duration) on every flip. Any in-flight render is cancelled.
+  private func scheduleRender() {
+    renderTask?.cancel()
+    renderTask = Task { @MainActor in
+      try? await Task.sleep(for: .milliseconds(250))
+      guard !Task.isCancelled else { return }
+      await renderImage()
     }
   }
 
