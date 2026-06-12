@@ -70,21 +70,30 @@ struct ShareCardSheet: View {
   }
 
   /// Scale the 1080×1920 source down to fit the available width while
-  /// preserving aspect ratio. `scaleEffect` doesn't change layout
-  /// participation, so we wrap it in an outer `.frame` matched to the
-  /// geometry to reserve the correct space in the scroll view.
+  /// preserving aspect ratio.
+  ///
+  /// Uses the `Color.clear + .aspectRatio + .overlay { GeometryReader }`
+  /// pattern: a bare GeometryReader inside a ScrollView collapses to
+  /// zero, but Color.clear with an explicit aspectRatio establishes a
+  /// concrete frame that the overlay's GeometryReader can read reliably.
   private var scaledPreview: some View {
-    GeometryReader { proxy in
-      let scale = proxy.size.width / sourceSize.width
-      sourceCard
-        .frame(width: sourceSize.width, height: sourceSize.height)
-        .scaleEffect(scale, anchor: .topLeading)
-        .frame(width: proxy.size.width, height: sourceSize.height * scale)
-    }
-    .aspectRatio(sourceSize.width / sourceSize.height, contentMode: .fit)
-    .frame(maxWidth: .infinity)
-    .clipShape(RoundedRectangle(cornerRadius: 24))
-    .shadow(color: .black.opacity(0.5), radius: 20, y: 8)
+    Color.clear
+      .aspectRatio(sourceSize.width / sourceSize.height, contentMode: .fit)
+      .overlay {
+        GeometryReader { proxy in
+          let scale = proxy.size.width / sourceSize.width
+          sourceCard
+            .frame(width: sourceSize.width, height: sourceSize.height)
+            .scaleEffect(scale, anchor: .topLeading)
+            .frame(
+              width: proxy.size.width,
+              height: proxy.size.height,
+              alignment: .topLeading
+            )
+        }
+      }
+      .clipShape(RoundedRectangle(cornerRadius: 24))
+      .shadow(color: .black.opacity(0.5), radius: 20, y: 8)
   }
 
   @ViewBuilder
