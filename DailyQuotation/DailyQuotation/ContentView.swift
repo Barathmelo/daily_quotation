@@ -10,6 +10,9 @@ struct ContentView: View {
   @State private var feedCurrentIndex: Int = 0
   @State private var showPaywall = false
   @State private var isTabBarHidden = false
+  /// `true` while a descendant horizontal ScrollView is actively being
+  /// dragged. While set, our own tab-switch gesture stays out of the way.
+  @State private var isChildClaimingHorizontalDrag = false
   /// Locked once at the start of a drag so a midway twitch never flips
   /// the tab between horizontal-swipe and vertical-scroll behavior.
   @State private var lockedDragDirection: DragDirection? = nil
@@ -55,6 +58,9 @@ struct ContentView: View {
       withAnimation(.easeInOut(duration: 0.22)) {
         isTabBarHidden = hidden
       }
+    }
+    .onPreferenceChange(HorizontalDragClaimedPreferenceKey.self) { claimed in
+      isChildClaimingHorizontalDrag = claimed
     }
     .sheet(isPresented: $showPaywall) {
       PaywallView()
@@ -141,8 +147,15 @@ struct ContentView: View {
   /// with a slight horizontal jitter don't see the whole tab slide
   /// sideways.
   private var dragGesture: some Gesture {
-    DragGesture(minimumDistance: 45)
+    DragGesture(minimumDistance: 20)
       .onChanged { value in
+        // A descendant horizontal ScrollView (Explore pills) is
+        // already handling this drag — don't fight it.
+        if isChildClaimingHorizontalDrag {
+          lockedDragDirection = .vertical
+          return
+        }
+
         if lockedDragDirection == nil {
           let absW = abs(value.translation.width)
           let absH = abs(value.translation.height)

@@ -90,6 +90,7 @@ struct ExploreView: View {
         }
       }
     }
+    .claimsHorizontalDrag()
   }
 
   @ViewBuilder
@@ -107,6 +108,7 @@ struct ExploreView: View {
         }
       }
     }
+    .claimsHorizontalDrag()
   }
 
   private var historyEntrySection: some View {
