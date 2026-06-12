@@ -52,7 +52,16 @@ struct QuoteSlideView: View {
       ShareCardSheet(
         quote: quote,
         gradientIndex: index,
-        isPremium: isPremium
+        isPremium: isPremium,
+        onRequirePaywall: {
+          // Dismiss share sheet first; let it animate out before the
+          // host's paywall sheet animates in (SwiftUI won't stack two
+          // sheets in the same frame).
+          showShareSheet = false
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            onRequirePaywall()
+          }
+        }
       )
     }
     .onChange(of: isFavorite) { _ in

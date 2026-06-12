@@ -7,6 +7,10 @@ struct ShareCardSheet: View {
   let quote: Quote
   let gradientIndex: Int
   let isPremium: Bool
+  /// Called when a free user attempts to toggle off the watermark.
+  /// The parent (QuoteSlideView) should dismiss this sheet and present
+  /// the paywall.
+  var onRequirePaywall: () -> Void = {}
 
   @State private var includeWatermark: Bool = true
   @State private var renderedImage: UIImage?
@@ -15,6 +19,22 @@ struct ShareCardSheet: View {
   /// Free users cannot drop the watermark, regardless of the toggle.
   private var effectiveWatermark: Bool {
     isPremium ? includeWatermark : true
+  }
+
+  /// Binding presented to the Toggle. For premium users this is a
+  /// straight pass-through; for free users we swallow the set attempt
+  /// (keeping watermark ON) and trigger the paywall callback instead.
+  private var watermarkBinding: Binding<Bool> {
+    Binding(
+      get: { effectiveWatermark },
+      set: { newValue in
+        if isPremium {
+          includeWatermark = newValue
+        } else {
+          onRequirePaywall()
+        }
+      }
+    )
   }
 
   private var sourceCard: ShareCardView {
@@ -36,17 +56,21 @@ struct ShareCardSheet: View {
           scaledPreview
             .padding(.horizontal, 32)
 
-          if isPremium {
-            Toggle("Show watermark", isOn: $includeWatermark)
-              .tint(.blue)
-              .foregroundStyle(.white)
-              .padding(.horizontal, 32)
-          } else {
-            Label("Watermark required for free users", systemImage: "info.circle")
-              .font(.caption)
-              .foregroundStyle(.white.opacity(0.65))
-              .padding(.horizontal, 32)
+          HStack(spacing: 8) {
+            Toggle(isOn: watermarkBinding) {
+              HStack(spacing: 6) {
+                Text("Show watermark")
+                  .foregroundStyle(.white)
+                if !isPremium {
+                  Image(systemName: "lock.fill")
+                    .font(.caption2)
+                    .foregroundStyle(.yellow)
+                }
+              }
+            }
+            .tint(.blue)
           }
+          .padding(.horizontal, 32)
 
           shareButton
         }
