@@ -16,24 +16,42 @@ enum QuoteTheme: String, Codable, CaseIterable {
   case forest
   case aurora
   case mono
-  // Image themes (rendered as Midnight gradient on widget — see above)
+  // Image themes — Scenery (rendered as Midnight gradient on widget)
   case mountain
   case oceanPhoto
+  case desert
+  case forestPhoto
+  // Image themes — Universe
   case galaxy
+  case milkyway
+  case planet
+  case starfield
+  // Image themes — Abstract
   case glass
+  case smoke
+  case marble
+  case holographic
 
   var displayName: String {
     switch self {
-    case .midnight:   return "Midnight"
-    case .sunset:     return "Sunset"
-    case .ocean:      return "Ocean"
-    case .forest:     return "Forest"
-    case .aurora:     return "Aurora"
-    case .mono:       return "Mono"
-    case .mountain:   return "Mountain"
-    case .oceanPhoto: return "Coast"
-    case .galaxy:     return "Galaxy"
-    case .glass:      return "Glass"
+    case .midnight:    return "Midnight"
+    case .sunset:      return "Sunset"
+    case .ocean:       return "Ocean"
+    case .forest:      return "Forest"
+    case .aurora:      return "Aurora"
+    case .mono:        return "Mono"
+    case .mountain:    return "Mountain"
+    case .oceanPhoto:  return "Coast"
+    case .desert:      return "Desert"
+    case .forestPhoto: return "Woods"
+    case .galaxy:      return "Galaxy"
+    case .milkyway:    return "Cosmos"
+    case .planet:      return "Saturn"
+    case .starfield:   return "Stars"
+    case .glass:       return "Glass"
+    case .smoke:       return "Smoke"
+    case .marble:      return "Marble"
+    case .holographic: return "Holo"
     }
   }
 
@@ -88,7 +106,9 @@ enum QuoteTheme: String, Codable, CaseIterable {
         [Color(red: 0.12, green: 0.12, blue: 0.12), Color(red: 0.22, green: 0.22, blue: 0.22), Color(red: 0.05, green: 0.05, blue: 0.05)],
         [Color(red: 0.20, green: 0.20, blue: 0.20), Color(red: 0.10, green: 0.10, blue: 0.10), Color(red: 0.05, green: 0.05, blue: 0.05)],
       ]
-    case .mountain, .oceanPhoto, .galaxy, .glass:
+    case .mountain, .oceanPhoto, .desert, .forestPhoto,
+         .galaxy, .milkyway, .planet, .starfield,
+         .glass, .smoke, .marble, .holographic:
       // Fallback to Midnight in widget contexts (no image assets bundled
       // in the extension).
       return QuoteTheme.midnight.colors

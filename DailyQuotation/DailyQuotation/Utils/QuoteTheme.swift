@@ -19,24 +19,44 @@ enum QuoteTheme: String, Codable, CaseIterable {
   case aurora
   case mono
 
-  // Image themes (new)
+  // Image themes — Scenery
   case mountain
   case oceanPhoto
+  case desert
+  case forestPhoto
+
+  // Image themes — Universe
   case galaxy
+  case milkyway
+  case planet
+  case starfield
+
+  // Image themes — Abstract
   case glass
+  case smoke
+  case marble
+  case holographic
 
   var displayName: String {
     switch self {
-    case .midnight:   return "Midnight"
-    case .sunset:     return "Sunset"
-    case .ocean:      return "Ocean"
-    case .forest:     return "Forest"
-    case .aurora:     return "Aurora"
-    case .mono:       return "Mono"
-    case .mountain:   return "Mountain"
-    case .oceanPhoto: return "Coast"
-    case .galaxy:     return "Galaxy"
-    case .glass:      return "Glass"
+    case .midnight:    return "Midnight"
+    case .sunset:      return "Sunset"
+    case .ocean:       return "Ocean"
+    case .forest:      return "Forest"
+    case .aurora:      return "Aurora"
+    case .mono:        return "Mono"
+    case .mountain:    return "Mountain"
+    case .oceanPhoto:  return "Coast"
+    case .desert:      return "Desert"
+    case .forestPhoto: return "Woods"
+    case .galaxy:      return "Galaxy"
+    case .milkyway:    return "Cosmos"
+    case .planet:      return "Saturn"
+    case .starfield:   return "Stars"
+    case .glass:       return "Glass"
+    case .smoke:       return "Smoke"
+    case .marble:      return "Marble"
+    case .holographic: return "Holo"
     }
   }
 
@@ -49,11 +69,11 @@ enum QuoteTheme: String, Codable, CaseIterable {
     switch self {
     case .midnight, .sunset, .ocean, .forest, .aurora, .mono:
       return .colors
-    case .mountain, .oceanPhoto:
+    case .mountain, .oceanPhoto, .desert, .forestPhoto:
       return .scenery
-    case .galaxy:
+    case .galaxy, .milkyway, .planet, .starfield:
       return .universe
-    case .glass:
+    case .glass, .smoke, .marble, .holographic:
       return .abstract
     }
   }
@@ -69,8 +89,10 @@ enum QuoteTheme: String, Codable, CaseIterable {
     /// 5 three-stop palettes; quote index picks one.
     case gradient(colors: [[Color]])
     /// One or more image asset names (image set in Assets.xcassets);
-    /// quote index picks one.
-    case image(names: [String])
+    /// quote index picks one. `isLight: true` applies a heavier dark
+    /// overlay so white text stays readable over predominantly bright
+    /// backgrounds (e.g. desert, holographic).
+    case image(names: [String], isLight: Bool = false)
   }
 
   var kind: Kind {
@@ -81,10 +103,18 @@ enum QuoteTheme: String, Codable, CaseIterable {
     case .forest:     return .gradient(colors: Gradients.forest)
     case .aurora:     return .gradient(colors: Gradients.aurora)
     case .mono:       return .gradient(colors: Gradients.mono)
-    case .mountain:   return .image(names: ["theme-mountain-1"])
-    case .oceanPhoto: return .image(names: ["theme-coast-1"])
-    case .galaxy:     return .image(names: ["theme-galaxy-1"])
-    case .glass:      return .image(names: ["theme-glass-1"])
+    case .mountain:    return .image(names: ["theme-mountain-1"])
+    case .oceanPhoto:  return .image(names: ["theme-coast-1"])
+    case .desert:      return .image(names: ["theme-desert-1"], isLight: true)
+    case .forestPhoto: return .image(names: ["theme-forest-1"])
+    case .galaxy:      return .image(names: ["theme-galaxy-1"])
+    case .milkyway:    return .image(names: ["theme-milkyway-1"])
+    case .planet:      return .image(names: ["theme-planet-1"])
+    case .starfield:   return .image(names: ["theme-starfield-1"])
+    case .glass:       return .image(names: ["theme-glass-1"])
+    case .smoke:       return .image(names: ["theme-smoke-1"])
+    case .marble:      return .image(names: ["theme-marble-1"])
+    case .holographic: return .image(names: ["theme-holographic-1"], isLight: true)
     }
   }
 
@@ -111,7 +141,7 @@ enum QuoteTheme: String, Codable, CaseIterable {
         startPoint: .topLeading,
         endPoint: .bottomTrailing
       )
-    case .image(let names):
+    case .image(let names, let isLight):
       let imageName = names[mod(index, names.count)]
       // GeometryReader pins the layout to the parent's size; without it
       // Image(...).resizable().scaledToFill() reports the asset's
@@ -128,18 +158,32 @@ enum QuoteTheme: String, Codable, CaseIterable {
             .clipped()
           // Darkening overlay: stronger at the bottom where the action
           // buttons sit, lighter at top to preserve image character.
+          // Bright photos get a heavier mix so white text remains
+          // readable.
           LinearGradient(
-            gradient: Gradient(stops: [
-              .init(color: .black.opacity(0.20), location: 0),
-              .init(color: .black.opacity(0.40), location: 0.55),
-              .init(color: .black.opacity(0.65), location: 1),
-            ]),
+            gradient: Gradient(stops: overlayStops(isLight: isLight)),
             startPoint: .top,
             endPoint: .bottom
           )
         }
         .frame(width: proxy.size.width, height: proxy.size.height)
       }
+    }
+  }
+
+  private func overlayStops(isLight: Bool) -> [Gradient.Stop] {
+    if isLight {
+      return [
+        .init(color: .black.opacity(0.42), location: 0),
+        .init(color: .black.opacity(0.58), location: 0.55),
+        .init(color: .black.opacity(0.78), location: 1),
+      ]
+    } else {
+      return [
+        .init(color: .black.opacity(0.20), location: 0),
+        .init(color: .black.opacity(0.40), location: 0.55),
+        .init(color: .black.opacity(0.65), location: 1),
+      ]
     }
   }
 
@@ -157,7 +201,7 @@ enum QuoteTheme: String, Codable, CaseIterable {
       )
       .frame(width: size, height: size)
       .clipShape(Circle())
-    case .image(let names):
+    case .image(let names, _):
       Image(names[0])
         .resizable()
         .scaledToFill()
@@ -200,6 +244,12 @@ enum QuoteTheme: String, Codable, CaseIterable {
       // legacy call sites still ask for one. Fall back to Midnight.
       return QuoteTheme.midnight.gradient(for: index)
     }
+  }
+
+  /// `true` for image themes (used internally and by `previewSwatch`).
+  var isImage: Bool {
+    if case .image = kind { return true }
+    return false
   }
 
   var previewGradient: LinearGradient {
