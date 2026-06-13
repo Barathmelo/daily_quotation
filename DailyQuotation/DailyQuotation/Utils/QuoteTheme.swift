@@ -40,6 +40,29 @@ enum QuoteTheme: String, Codable, CaseIterable {
     }
   }
 
+  // MARK: - Category
+
+  /// User-facing grouping shown in the theme picker. Independent of
+  /// `Kind` so future palettes can mix gradients and images inside one
+  /// group if it ever makes sense.
+  var category: ThemeCategory {
+    switch self {
+    case .midnight, .sunset, .ocean, .forest, .aurora, .mono:
+      return .colors
+    case .mountain, .oceanPhoto:
+      return .scenery
+    case .galaxy:
+      return .universe
+    case .glass:
+      return .abstract
+    }
+  }
+
+  /// All themes that belong to the given category, in declaration order.
+  static func themes(in category: ThemeCategory) -> [QuoteTheme] {
+    Self.allCases.filter { $0.category == category }
+  }
+
   // MARK: - Kind
 
   enum Kind {
@@ -188,6 +211,24 @@ enum QuoteTheme: String, Codable, CaseIterable {
       )
     }
     return QuoteTheme.midnight.previewGradient
+  }
+}
+
+// MARK: - Theme category
+
+enum ThemeCategory: String, CaseIterable, Hashable {
+  case colors
+  case scenery
+  case universe
+  case abstract
+
+  var displayName: String {
+    switch self {
+    case .colors:   return "Colors"
+    case .scenery:  return "Scenery"
+    case .universe: return "Universe"
+    case .abstract: return "Abstract"
+    }
   }
 }
 

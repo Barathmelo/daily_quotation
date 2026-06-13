@@ -379,11 +379,27 @@ struct QuoteSlideView: View {
   }
 
   private var themeSection: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: 16) {
       sectionLabel("Theme")
+      ForEach(ThemeCategory.allCases, id: \.self) { category in
+        let themes = QuoteTheme.themes(in: category)
+        if !themes.isEmpty {
+          themeCategoryRow(title: category.displayName, themes: themes)
+        }
+      }
+    }
+  }
+
+  private func themeCategoryRow(title: String, themes: [QuoteTheme]) -> some View {
+    VStack(alignment: .leading, spacing: 10) {
+      Text(title)
+        .font(.system(size: 11, weight: .semibold))
+        .tracking(1)
+        .foregroundColor(.white.opacity(0.4))
+        .padding(.leading, 2)
       ScrollView(.horizontal, showsIndicators: false) {
         HStack(spacing: 14) {
-          ForEach(QuoteTheme.allCases, id: \.self) { theme in
+          ForEach(themes, id: \.self) { theme in
             themeButton(for: theme)
           }
         }
