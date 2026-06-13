@@ -1,27 +1,43 @@
 import SwiftUI
 
 /// Widget-side copy of `QuoteTheme`. Kept in sync manually with the
-/// main-app version (the M1 design deferred unifying the shared
-/// Quote/Appearance/Theme models into a cross-target source file).
+/// main-app version (M1 design deferred unifying these models).
+///
+/// Widget always renders the gradient form even for "image" themes —
+/// home-screen widgets don't bundle the photo assets to keep the
+/// extension's binary small, so we fall back to Midnight gradient for
+/// image themes. The Feed/Detail/Share surfaces inside the app still
+/// show the full image background.
 enum QuoteTheme: String, Codable, CaseIterable {
+  // Gradient themes
   case midnight
   case sunset
   case ocean
   case forest
   case aurora
   case mono
+  // Image themes (rendered as Midnight gradient on widget — see above)
+  case mountain
+  case oceanPhoto
+  case galaxy
+  case glass
 
   var displayName: String {
     switch self {
-    case .midnight: return "Midnight"
-    case .sunset:   return "Sunset"
-    case .ocean:    return "Ocean"
-    case .forest:   return "Forest"
-    case .aurora:   return "Aurora"
-    case .mono:     return "Mono"
+    case .midnight:   return "Midnight"
+    case .sunset:     return "Sunset"
+    case .ocean:      return "Ocean"
+    case .forest:     return "Forest"
+    case .aurora:     return "Aurora"
+    case .mono:       return "Mono"
+    case .mountain:   return "Mountain"
+    case .oceanPhoto: return "Coast"
+    case .galaxy:     return "Galaxy"
+    case .glass:      return "Glass"
     }
   }
 
+  /// 5 three-stop gradient palettes; image themes resolve to Midnight.
   var colors: [[Color]] {
     switch self {
     case .midnight:
@@ -72,6 +88,10 @@ enum QuoteTheme: String, Codable, CaseIterable {
         [Color(red: 0.12, green: 0.12, blue: 0.12), Color(red: 0.22, green: 0.22, blue: 0.22), Color(red: 0.05, green: 0.05, blue: 0.05)],
         [Color(red: 0.20, green: 0.20, blue: 0.20), Color(red: 0.10, green: 0.10, blue: 0.10), Color(red: 0.05, green: 0.05, blue: 0.05)],
       ]
+    case .mountain, .oceanPhoto, .galaxy, .glass:
+      // Fallback to Midnight in widget contexts (no image assets bundled
+      // in the extension).
+      return QuoteTheme.midnight.colors
     }
   }
 
@@ -85,9 +105,8 @@ enum QuoteTheme: String, Codable, CaseIterable {
   }
 
   var previewGradient: LinearGradient {
-    let palette = colors[0]
-    return LinearGradient(
-      gradient: Gradient(colors: palette),
+    LinearGradient(
+      gradient: Gradient(colors: colors[0]),
       startPoint: .topLeading,
       endPoint: .bottomTrailing
     )

@@ -54,7 +54,7 @@ struct QuoteDetailView: View {
 
   var body: some View {
     ZStack {
-      theme.gradient(for: gradientIndex)
+      theme.background(for: gradientIndex)
         .ignoresSafeArea()
 
       VStack(spacing: 22) {

@@ -24,7 +24,7 @@ struct QuoteSlideView: View {
 
   var body: some View {
     ZStack {
-      appearance.theme.gradient(for: index)
+      appearance.theme.background(for: index)
         .ignoresSafeArea(.all)
 
       // Background decorative elements
@@ -404,9 +404,7 @@ struct QuoteSlideView: View {
     } label: {
       VStack(spacing: 8) {
         ZStack {
-          Circle()
-            .fill(theme.previewGradient)
-            .frame(width: 48, height: 48)
+          theme.previewSwatch(size: 48)
             .overlay(
               Circle()
                 .stroke(Color.white.opacity(isSelected ? 0.85 : 0.12), lineWidth: isSelected ? 2 : 1)
