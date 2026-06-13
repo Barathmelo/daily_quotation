@@ -19,6 +19,7 @@ struct AuthorQuotesView: View {
         }
       }
       .padding(16)
+      .readableWidth()
     }
     .background(Color.black.ignoresSafeArea())
     .navigationTitle(authorName)

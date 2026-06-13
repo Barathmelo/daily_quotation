@@ -90,6 +90,7 @@ struct QuoteDetailView: View {
         actionRow
           .padding(.bottom, 48)
       }
+      .readableWidth()
     }
     .navigationTitle("Quote")
     .navigationBarTitleDisplayMode(.inline)

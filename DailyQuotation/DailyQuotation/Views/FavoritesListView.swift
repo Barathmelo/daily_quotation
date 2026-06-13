@@ -93,6 +93,7 @@ struct FavoritesListView: View {
                 Spacer()
                     .frame(height: 120)
             }
+            .readableWidth()
         }
     }
     

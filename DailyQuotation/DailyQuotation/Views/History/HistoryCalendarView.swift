@@ -57,6 +57,8 @@ struct HistoryCalendarView: View {
         .padding(.horizontal, 32)
         .padding(.bottom, 32)
       }
+      .readableWidth()
+      .frame(maxHeight: .infinity)
       .background(Color.black.ignoresSafeArea())
       .navigationTitle("History")
       .navigationBarTitleDisplayMode(.inline)

@@ -35,6 +35,7 @@ struct ExploreView: View {
         }
         .padding(.horizontal, 16)
         .padding(.top, 60)
+        .readableWidth()
       }
       .background(Color.black.ignoresSafeArea())
       .navigationBarHidden(true)

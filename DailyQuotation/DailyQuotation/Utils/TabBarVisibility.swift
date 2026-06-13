@@ -31,6 +31,22 @@ extension View {
   }
 }
 
+// MARK: - Readable content width
+
+extension View {
+  /// Cap a view's width to a comfortable reading width on iPad while
+  /// still letting it fill the available space on iPhone. 680pt is the
+  /// rough "ideal line length" recommended by typography resources
+  /// (~70 chars at 16pt body). Wrapping outside in another
+  /// `.frame(maxWidth: .infinity)` keeps the capped content horizontally
+  /// centered on iPad.
+  func readableWidth(_ maxWidth: CGFloat = 680) -> some View {
+    self
+      .frame(maxWidth: maxWidth)
+      .frame(maxWidth: .infinity)
+  }
+}
+
 // MARK: - Horizontal drag ownership
 
 /// Preference key that lets a horizontal ScrollView (or any other
