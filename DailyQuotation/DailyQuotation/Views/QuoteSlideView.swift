@@ -100,7 +100,7 @@ struct QuoteSlideView: View {
         .multilineTextAlignment(.center)
         .lineSpacing(adaptiveLineSpacing)
         .minimumScaleFactor(0.7)
-        .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 5)
+        .quoteTextShadow()
 
       // Divider
       Rectangle()

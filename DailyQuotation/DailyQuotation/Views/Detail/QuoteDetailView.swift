@@ -66,7 +66,7 @@ struct QuoteDetailView: View {
           .multilineTextAlignment(.center)
           .lineSpacing(max(4, adaptiveQuoteFontSize * 0.28))
           .minimumScaleFactor(0.7)
-          .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 5)
+          .quoteTextShadow()
           .padding(.horizontal, 28)
 
         Rectangle()

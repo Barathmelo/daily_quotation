@@ -35,7 +35,7 @@ struct ShareCardView: View {
           .foregroundColor(.white)
           .multilineTextAlignment(.center)
           .lineSpacing(quoteFontSize * 0.18)
-          .shadow(color: .black.opacity(0.45), radius: 18, x: 0, y: 8)
+          .quoteTextShadow()
           .padding(.horizontal, 80)
           .minimumScaleFactor(0.7)
           .fixedSize(horizontal: false, vertical: true)

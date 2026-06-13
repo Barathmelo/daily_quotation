@@ -31,6 +31,21 @@ extension View {
   }
 }
 
+// MARK: - Quote text shadow
+
+extension View {
+  /// Two-layer drop shadow used on quote text everywhere it sits on
+  /// top of a gradient or photo background. The inner tight shadow
+  /// gives white glyphs a crisp edge; the outer soft shadow casts a
+  /// dark halo so the text still pops against bright regions (Desert,
+  /// Holo, the brighter half of Mountain etc.).
+  func quoteTextShadow() -> some View {
+    self
+      .shadow(color: .black.opacity(0.7), radius: 4, x: 0, y: 2)
+      .shadow(color: .black.opacity(0.5), radius: 14, x: 0, y: 6)
+  }
+}
+
 // MARK: - Readable content width
 
 extension View {

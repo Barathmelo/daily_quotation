@@ -165,6 +165,18 @@ enum QuoteTheme: String, Codable, CaseIterable {
             startPoint: .top,
             endPoint: .bottom
           )
+          // Radial vignette concentrated where the quote text sits.
+          // Darker at center for legibility; transparent at the edges
+          // so the photo character is still visible around the frame.
+          RadialGradient(
+            gradient: Gradient(colors: [
+              .black.opacity(isLight ? 0.42 : 0.28),
+              .clear,
+            ]),
+            center: .center,
+            startRadius: 40,
+            endRadius: max(proxy.size.width, proxy.size.height) * 0.55
+          )
         }
         .frame(width: proxy.size.width, height: proxy.size.height)
       }
