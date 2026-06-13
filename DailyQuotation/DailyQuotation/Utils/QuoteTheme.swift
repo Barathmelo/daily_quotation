@@ -90,23 +90,32 @@ enum QuoteTheme: String, Codable, CaseIterable {
       )
     case .image(let names):
       let imageName = names[mod(index, names.count)]
-      ZStack {
-        // Fallback charcoal underneath in case the asset fails to load.
-        Color.black
-        Image(imageName)
-          .resizable()
-          .scaledToFill()
-        // Darkening overlay: stronger at the bottom where the action
-        // buttons sit, lighter at top to preserve image character.
-        LinearGradient(
-          gradient: Gradient(stops: [
-            .init(color: .black.opacity(0.20), location: 0),
-            .init(color: .black.opacity(0.40), location: 0.55),
-            .init(color: .black.opacity(0.65), location: 1),
-          ]),
-          startPoint: .top,
-          endPoint: .bottom
-        )
+      // GeometryReader pins the layout to the parent's size; without it
+      // Image(...).resizable().scaledToFill() reports the asset's
+      // intrinsic size (1024×1024 etc.) and pushes everything else in
+      // the ZStack — including the quote text — off-screen.
+      GeometryReader { proxy in
+        ZStack {
+          // Fallback charcoal underneath in case the asset fails to load.
+          Color.black
+          Image(imageName)
+            .resizable()
+            .scaledToFill()
+            .frame(width: proxy.size.width, height: proxy.size.height)
+            .clipped()
+          // Darkening overlay: stronger at the bottom where the action
+          // buttons sit, lighter at top to preserve image character.
+          LinearGradient(
+            gradient: Gradient(stops: [
+              .init(color: .black.opacity(0.20), location: 0),
+              .init(color: .black.opacity(0.40), location: 0.55),
+              .init(color: .black.opacity(0.65), location: 1),
+            ]),
+            startPoint: .top,
+            endPoint: .bottom
+          )
+        }
+        .frame(width: proxy.size.width, height: proxy.size.height)
       }
     }
   }
