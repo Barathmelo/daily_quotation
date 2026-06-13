@@ -58,10 +58,10 @@ enum QuoteTheme: String, Codable, CaseIterable {
     case .forest:     return .gradient(colors: Gradients.forest)
     case .aurora:     return .gradient(colors: Gradients.aurora)
     case .mono:       return .gradient(colors: Gradients.mono)
-    case .mountain:   return .image(names: ["theme-mountain-1", "theme-mountain-2"])
-    case .oceanPhoto: return .image(names: ["theme-coast-1", "theme-coast-2"])
-    case .galaxy:     return .image(names: ["theme-galaxy-1", "theme-galaxy-2"])
-    case .glass:      return .image(names: ["theme-glass-1", "theme-glass-2"])
+    case .mountain:   return .image(names: ["theme-mountain-1"])
+    case .oceanPhoto: return .image(names: ["theme-coast-1"])
+    case .galaxy:     return .image(names: ["theme-galaxy-1"])
+    case .glass:      return .image(names: ["theme-glass-1"])
     }
   }
 
