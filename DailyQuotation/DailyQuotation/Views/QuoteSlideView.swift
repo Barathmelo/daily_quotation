@@ -237,7 +237,7 @@ struct QuoteSlideView: View {
             HapticManager.selection()
           }
         }) {
-          Image(systemName: "textformat")
+          Image(systemName: showSettings ? "paintpalette.fill" : "paintpalette")
             .font(.system(size: 24))
             .foregroundColor(.white)
             .opacity(showSettings ? 1 : 0.9)
