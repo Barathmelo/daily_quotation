@@ -449,13 +449,6 @@ struct QuoteSlideView: View {
               .shadow(color: .black.opacity(0.5), radius: 3)
           }
         }
-        // Image themes are self-descriptive (the swatch is the
-        // preview); only gradient swatches need a label to disambiguate.
-        if !theme.isImage {
-          Text(theme.displayName)
-            .font(.system(size: 12, weight: .medium))
-            .foregroundColor(isSelected ? .white : .white.opacity(0.65))
-        }
       }
       .frame(minWidth: 56)
     }
