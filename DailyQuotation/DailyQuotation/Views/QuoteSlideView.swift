@@ -312,14 +312,30 @@ struct QuoteSlideView: View {
   }
 
   private var appearancePanel: some View {
-    VStack(alignment: .leading, spacing: 20) {
+    VStack(spacing: 0) {
+      // Header sits outside the ScrollView so the close button stays
+      // pinned and the title doesn't scroll under the rounded corner.
       appearanceHeader
-      typefaceSection
-      sizeSection
-      themeSection
+        .padding(.horizontal, 24)
+        .padding(.top, 24)
+        .padding(.bottom, 16)
+
+      ScrollView(showsIndicators: false) {
+        VStack(alignment: .leading, spacing: 20) {
+          typefaceSection
+          sizeSection
+          themeSection
+        }
+        .padding(.horizontal, 24)
+        .padding(.bottom, 24)
+      }
+      .scrollBounceBehavior(.basedOnSize)
     }
-    .padding(24)
     .frame(maxWidth: 520)
+    // Cap the panel height to ~60% of the screen so it never reaches
+    // the status bar / dynamic island. The ScrollView absorbs anything
+    // taller (currently the Theme rows are the long part).
+    .frame(maxHeight: UIScreen.main.bounds.height * 0.6)
     .background(
       RoundedRectangle(cornerRadius: 32)
         .fill(Color.black.opacity(0.9))
