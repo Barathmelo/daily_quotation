@@ -6,6 +6,7 @@ import SwiftUI
 struct ShareCardSheet: View {
   let quote: Quote
   let gradientIndex: Int
+  let theme: QuoteTheme
   let isPremium: Bool
   /// Called when a free user attempts to toggle off the watermark.
   /// The parent (QuoteSlideView) should dismiss this sheet and present
@@ -43,6 +44,7 @@ struct ShareCardSheet: View {
     ShareCardView(
       quote: quote,
       gradientIndex: gradientIndex,
+      theme: theme,
       includeWatermark: effectiveWatermark
     )
   }

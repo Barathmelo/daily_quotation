@@ -95,11 +95,27 @@ enum TextSize: String, Codable, CaseIterable {
 struct AppearanceSettings: Codable, Hashable {
   var font: FontFamily
   var size: TextSize
+  var theme: QuoteTheme
 
-  static let `default` = AppearanceSettings(font: .serif, size: .medium)
+  static let `default` = AppearanceSettings(
+    font: .serif,
+    size: .medium,
+    theme: .midnight
+  )
 }
 
 extension AppearanceSettings {
+  private enum CodingKeys: String, CodingKey {
+    case font, size, theme
+  }
+
+  init(from decoder: Decoder) throws {
+    let c = try decoder.container(keyedBy: CodingKeys.self)
+    self.font = try c.decode(FontFamily.self, forKey: .font)
+    self.size = try c.decode(TextSize.self, forKey: .size)
+    self.theme = (try? c.decode(QuoteTheme.self, forKey: .theme)) ?? .midnight
+  }
+
   var quoteFont: Font {
     font.font(size: size.fontSize)
   }

@@ -11,19 +11,25 @@ struct QuoteDetailView: View {
 
   @EnvironmentObject private var subscriptionManager: RevenueCatManager
   @ObservedObject private var favoritesManager = FavoritesManager.shared
+  @ObservedObject private var appearanceManager = AppearanceManager.shared
 
   @State private var showShareSheet = false
   @State private var copied = false
+
+  private var theme: QuoteTheme {
+    appearanceManager.settings.theme
+  }
 
   init(quote: Quote) {
     self.quote = quote
     // The Feed picks gradients by feed position; detail-view quotes
     // arrive without a position, so derive a stable bucket from the
     // first 4 hex chars of the stable id. This keeps the same quote
-    // showing the same colors every visit.
+    // showing the same colors every visit. (We assume all themes
+    // expose the same palette count — currently 5.)
     let head = quote.id.prefix(4)
     let value = UInt32(head, radix: 16) ?? 0
-    self.gradientIndex = Int(value) % max(GradientColors.gradients.count, 1)
+    self.gradientIndex = Int(value) % max(QuoteTheme.midnight.colors.count, 1)
   }
 
   private var isFavorite: Bool {
@@ -48,7 +54,7 @@ struct QuoteDetailView: View {
 
   var body: some View {
     ZStack {
-      GradientColors.gradient(for: gradientIndex)
+      theme.gradient(for: gradientIndex)
         .ignoresSafeArea()
 
       VStack(spacing: 22) {
@@ -93,6 +99,7 @@ struct QuoteDetailView: View {
       ShareCardSheet(
         quote: quote,
         gradientIndex: gradientIndex,
+        theme: theme,
         isPremium: subscriptionManager.isPremiumUser
       )
     }

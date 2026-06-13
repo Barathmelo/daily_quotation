@@ -24,7 +24,7 @@ struct QuoteSlideView: View {
 
   var body: some View {
     ZStack {
-      GradientColors.gradient(for: index)
+      appearance.theme.gradient(for: index)
         .ignoresSafeArea(.all)
 
       // Background decorative elements
@@ -52,6 +52,7 @@ struct QuoteSlideView: View {
       ShareCardSheet(
         quote: quote,
         gradientIndex: index,
+        theme: appearance.theme,
         isPremium: isPremium,
         onRequirePaywall: {
           // Dismiss share sheet first; let it animate out before the
@@ -315,6 +316,7 @@ struct QuoteSlideView: View {
       appearanceHeader
       typefaceSection
       sizeSection
+      themeSection
     }
     .padding(24)
     .frame(maxWidth: 520)
@@ -374,6 +376,56 @@ struct QuoteSlideView: View {
           .fill(Color.white.opacity(0.03))
       )
     }
+  }
+
+  private var themeSection: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      sectionLabel("Theme")
+      ScrollView(.horizontal, showsIndicators: false) {
+        HStack(spacing: 14) {
+          ForEach(QuoteTheme.allCases, id: \.self) { theme in
+            themeButton(for: theme)
+          }
+        }
+        .padding(.horizontal, 2)
+      }
+      .claimsHorizontalDrag()
+    }
+  }
+
+  private func themeButton(for theme: QuoteTheme) -> some View {
+    let isSelected = appearance.theme == theme
+
+    return Button {
+      withAnimation(.easeOut(duration: 0.18)) {
+        appearance.theme = theme
+        HapticManager.selection()
+      }
+    } label: {
+      VStack(spacing: 8) {
+        ZStack {
+          Circle()
+            .fill(theme.previewGradient)
+            .frame(width: 48, height: 48)
+            .overlay(
+              Circle()
+                .stroke(Color.white.opacity(isSelected ? 0.85 : 0.12), lineWidth: isSelected ? 2 : 1)
+            )
+            .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 3)
+          if isSelected {
+            Image(systemName: "checkmark")
+              .font(.system(size: 16, weight: .bold))
+              .foregroundColor(.white)
+              .shadow(color: .black.opacity(0.5), radius: 3)
+          }
+        }
+        Text(theme.displayName)
+          .font(.system(size: 12, weight: .medium))
+          .foregroundColor(isSelected ? .white : .white.opacity(0.65))
+      }
+      .frame(minWidth: 56)
+    }
+    .buttonStyle(.plain)
   }
 
   private func sectionLabel(_ title: String) -> some View {

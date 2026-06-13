@@ -92,25 +92,20 @@ struct DailyQuotationWidgetEntryView: View {
   }
 
   private var backgroundGradient: some View {
-    LinearGradient(
-      gradient: Gradient(colors: [
-        Color(red: 0.16, green: 0.16, blue: 0.3),
-        Color(red: 0.05, green: 0.05, blue: 0.1),
-      ]),
-      startPoint: .topLeading,
-      endPoint: .bottomTrailing
-    )
-    .overlay(
-      RadialGradient(
-        gradient: Gradient(colors: [
-          .white.opacity(0.18),
-          .clear,
-        ]),
-        center: .topTrailing,
-        startRadius: 10,
-        endRadius: 240
+    // The widget shows a single quote per day, so we pick a stable
+    // palette index from the day-of-year. That way the gradient rotates
+    // along with the daily quote but stays consistent across all
+    // widget reloads inside the same day.
+    let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: entry.date) ?? 0
+    return entry.appearance.theme.gradient(for: dayOfYear)
+      .overlay(
+        RadialGradient(
+          gradient: Gradient(colors: [.white.opacity(0.18), .clear]),
+          center: .topTrailing,
+          startRadius: 10,
+          endRadius: 240
+        )
       )
-    )
   }
 
   private var maxQuoteLines: Int {

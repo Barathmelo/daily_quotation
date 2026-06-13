@@ -13,13 +13,14 @@ import SwiftUI
 struct ShareCardView: View {
   let quote: Quote
   let gradientIndex: Int
+  let theme: QuoteTheme
   let includeWatermark: Bool
 
   // MARK: - Body
 
   var body: some View {
     ZStack {
-      GradientColors.gradient(for: gradientIndex)
+      theme.gradient(for: gradientIndex)
 
       backgroundDecorations
 
