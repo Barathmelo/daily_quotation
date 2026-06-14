@@ -185,6 +185,23 @@ struct ContentView: View {
         }
 
         guard lockedDragDirection == .horizontal else { return }
+
+        // Mid-drag direction reversal: user started horizontal but now
+        // dragged more vertically (an "L" gesture). Treat that as a
+        // change of intent — release the horizontal claim, snap the
+        // page back to center, and let the rest of the drag flow into
+        // the underlying ScrollView.
+        let absW = abs(value.translation.width)
+        let absH = abs(value.translation.height)
+        if absH > absW {
+          lockedDragDirection = .vertical
+          withAnimation(translationSpring) {
+            translation = 0
+            isInteracting = false
+          }
+          return
+        }
+
         isInteracting = true
         // Skip horizontal feedback entirely when the user is dragging
         // past the first or last tab — there's no target tab to switch
