@@ -173,20 +173,32 @@ struct ContentView: View {
 
         let absW = abs(value.translation.width)
         let absH = abs(value.translation.height)
+        // Feed has no vertical ScrollView; its own vertical drag flips
+        // between quotes via its own threshold, so we don't risk a
+        // diagonal-slide collision there. Be lenient on Feed,
+        // single-axis strict on Explore/Favorites.
+        let strict = currentView != .feed
 
         if lockedDragDirection == nil {
-          // Hard-block: any meaningful vertical motion disqualifies
+          // Strict pages: any meaningful vertical motion disqualifies
           // horizontal up front.
-          if absH > 15 {
+          if strict && absH > 15 {
             lockedDragDirection = .vertical
             dragDisqualified = true
             return
           }
-          // Horizontal needs a deliberate, mostly-pure horizontal
-          // gesture: ≥35pt of horizontal travel AND ≥3x the vertical
-          // component. Anything less is observation; keep waiting.
-          if absW > 35 && absW > absH * 3 {
+          // Horizontal lock thresholds. Lenient on Feed (20pt + 1.2x)
+          // because the user is on a fullscreen card and small finger
+          // wobble shouldn't kill the swipe. Strict on the others.
+          let widthThreshold: CGFloat = strict ? 35 : 20
+          let ratio: CGFloat = strict ? 3 : 1.2
+          if absW > widthThreshold && absW > absH * ratio {
             lockedDragDirection = .horizontal
+          } else if !strict && absH > absW * 1.5 {
+            // Lenient page can still lock vertical if the gesture is
+            // obviously vertical, so we don't accidentally translate
+            // a quote-flip swipe.
+            lockedDragDirection = .vertical
           } else {
             return
           }
@@ -194,12 +206,10 @@ struct ContentView: View {
 
         guard lockedDragDirection == .horizontal else { return }
 
-        // Strict axis lock: once horizontal, ANY vertical motion
-        // beyond 10pt disqualifies the drag. The page snaps back to
-        // center and the rest of the gesture is ignored, so a user
-        // who "swipes right then down" never sees the page slide
-        // diagonally and never lands on the wrong tab.
-        if absH > 10 {
+        // Once horizontal: only strict pages disqualify on vertical
+        // intrusion (the diagonal-slide concern). Feed keeps tracking
+        // because there's no underlying scroll to confuse with.
+        if strict && absH > 10 {
           dragDisqualified = true
           withAnimation(translationSpring) {
             translation = 0
@@ -236,12 +246,16 @@ struct ContentView: View {
         }
 
         // Either we locked horizontal cleanly, or this is a fast flick
-        // that flew past the 35pt observation window — both are valid
-        // pure-horizontal gestures.
+        // that flew past the observation window. Feed accepts looser
+        // ratios so quick swipes between Feed and Explore still land.
         let absW = abs(value.translation.width)
         let absH = abs(value.translation.height)
+        let strict = currentView != .feed
+        let flickHorizontal = strict
+          ? (absW > 60 && absH < 25)
+          : (absW > 50 && absW > absH * 1.2)
         let releasedHorizontal = lockedDragDirection == .horizontal
-          || (absW > 60 && absH < 25)
+          || flickHorizontal
 
         if releasedHorizontal {
           let threshold: CGFloat = 60
