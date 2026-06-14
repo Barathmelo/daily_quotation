@@ -206,10 +206,16 @@ struct ContentView: View {
 
         guard lockedDragDirection == .horizontal else { return }
 
-        // Once horizontal: only strict pages disqualify on vertical
-        // intrusion (the diagonal-slide concern). Feed keeps tracking
-        // because there's no underlying scroll to confuse with.
-        if strict && absH > 10 {
+        // Once horizontal-locked, allow finger wobble as long as the
+        // gesture is *still* predominantly horizontal. We only bail
+        // when the vertical component is large enough relative to the
+        // horizontal one that the user is clearly changing intent
+        // (rather than just shaking a little while swiping sideways).
+        //
+        // Rule: disqualify when horizontal is no longer at least 1.5x
+        // vertical AND vertical has crossed a 20pt absolute minimum
+        // (so a tiny early jitter when |W| is also tiny doesn't trip).
+        if strict && absH > 20 && absW < absH * 1.5 {
           dragDisqualified = true
           withAnimation(translationSpring) {
             translation = 0
