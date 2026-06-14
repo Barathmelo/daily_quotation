@@ -16,6 +16,10 @@ struct ContentView: View {
   /// Locked once at the start of a drag so a midway twitch never flips
   /// the tab between horizontal-swipe and vertical-scroll behavior.
   @State private var lockedDragDirection: DragDirection? = nil
+  /// Set when the gesture is disqualified mid-drag (e.g. user started
+  /// horizontal then introduced vertical motion). While `true`, the
+  /// rest of the drag is ignored and onEnded doesn't switch tabs.
+  @State private var dragDisqualified = false
 
   init() {
     DailyQuoteSync.syncTodayIfNeeded()
@@ -155,29 +159,33 @@ struct ContentView: View {
   private var dragGesture: some Gesture {
     DragGesture(minimumDistance: 20)
       .onChanged { value in
+        // Once disqualified, this whole drag is ignored — both visually
+        // (page stays at center) and semantically (onEnded won't fire a
+        // tab switch). The flag resets in onEnded.
+        if dragDisqualified { return }
+
         // A descendant horizontal ScrollView (Explore pills) is
         // already handling this drag — don't fight it.
         if isChildClaimingHorizontalDrag {
-          lockedDragDirection = .vertical
+          dragDisqualified = true
           return
         }
 
-        if lockedDragDirection == nil {
-          let absW = abs(value.translation.width)
-          let absH = abs(value.translation.height)
+        let absW = abs(value.translation.width)
+        let absH = abs(value.translation.height)
 
-          // Hard-block: any meaningful vertical movement disqualifies
-          // horizontal — vertical wins ties and near-ties, since
-          // misfiring the tab gesture during a vertical list scroll
-          // is much more annoying than missing a borderline swipe.
+        if lockedDragDirection == nil {
+          // Hard-block: any meaningful vertical motion disqualifies
+          // horizontal up front.
           if absH > 15 {
             lockedDragDirection = .vertical
-          } else if absW > 35 && absW > absH * 3 {
-            // Horizontal needs a deliberate, mostly-pure horizontal
-            // gesture: at least 35pt of horizontal travel AND ≥3x
-            // the vertical component. Anything less is treated as
-            // "still observing" and the gesture stays dormant until
-            // intent becomes clearer.
+            dragDisqualified = true
+            return
+          }
+          // Horizontal needs a deliberate, mostly-pure horizontal
+          // gesture: ≥35pt of horizontal travel AND ≥3x the vertical
+          // component. Anything less is observation; keep waiting.
+          if absW > 35 && absW > absH * 3 {
             lockedDragDirection = .horizontal
           } else {
             return
@@ -186,15 +194,13 @@ struct ContentView: View {
 
         guard lockedDragDirection == .horizontal else { return }
 
-        // Mid-drag direction reversal: user started horizontal but now
-        // dragged more vertically (an "L" gesture). Treat that as a
-        // change of intent — release the horizontal claim, snap the
-        // page back to center, and let the rest of the drag flow into
-        // the underlying ScrollView.
-        let absW = abs(value.translation.width)
-        let absH = abs(value.translation.height)
-        if absH > absW {
-          lockedDragDirection = .vertical
+        // Strict axis lock: once horizontal, ANY vertical motion
+        // beyond 10pt disqualifies the drag. The page snaps back to
+        // center and the rest of the gesture is ignored, so a user
+        // who "swipes right then down" never sees the page slide
+        // diagonally and never lands on the wrong tab.
+        if absH > 10 {
+          dragDisqualified = true
           withAnimation(translationSpring) {
             translation = 0
             isInteracting = false
@@ -205,11 +211,8 @@ struct ContentView: View {
         isInteracting = true
         // Skip horizontal feedback entirely when the user is dragging
         // past the first or last tab — there's no target tab to switch
-        // to, and any rubber-band offset combines with the simultaneous
-        // vertical ScrollView scroll inside Favorites/Explore to read
-        // as the whole page drifting diagonally. We keep `isInteracting`
-        // set so taps on the tab bar still get suppressed mid-drag, but
-        // `translation` stays at 0 so the page doesn't move.
+        // to. We still set isInteracting so tab-bar taps stay
+        // suppressed mid-drag.
         let raw = value.translation.width
         let isOverscroll =
           (raw < 0 && currentView.next() == nil) ||
@@ -218,16 +221,27 @@ struct ContentView: View {
         translation = raw
       }
       .onEnded { value in
-        defer { lockedDragDirection = nil }
+        defer {
+          lockedDragDirection = nil
+          dragDisqualified = false
+        }
 
-        // Only commit a tab switch if the drag was locked horizontal
-        // *or* the released gesture is unambiguously horizontal
-        // (avoids missing fast, decisive swipes that flew past the
-        // 35pt observation window without setting the lock).
+        // Disqualified drags never switch tabs; just clean up.
+        guard !dragDisqualified else {
+          withAnimation(translationSpring) {
+            translation = 0
+            isInteracting = false
+          }
+          return
+        }
+
+        // Either we locked horizontal cleanly, or this is a fast flick
+        // that flew past the 35pt observation window — both are valid
+        // pure-horizontal gestures.
         let absW = abs(value.translation.width)
         let absH = abs(value.translation.height)
         let releasedHorizontal = lockedDragDirection == .horizontal
-          || (absW > 60 && absW > absH * 3)
+          || (absW > 60 && absH < 25)
 
         if releasedHorizontal {
           let threshold: CGFloat = 60
