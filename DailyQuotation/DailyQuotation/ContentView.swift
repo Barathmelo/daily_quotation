@@ -19,6 +19,10 @@ struct ContentView: View {
 
   init() {
     DailyQuoteSync.syncTodayIfNeeded()
+    // Stamp the install date the very first time the app launches so
+    // the History Calendar can later forbid picking days before the
+    // user actually started using the app.
+    FirstLaunchTracker.recordIfNeeded()
   }
 
   private let tabSwitchAnimation = Animation.easeInOut(duration: 0.28)
@@ -126,7 +130,7 @@ struct ContentView: View {
       .id(subscriptionManager.isPremiumUser)
       .environmentObject(subscriptionManager)
     case .explore:
-      ExploreView()
+      ExploreView(feedCurrentIndex: $feedCurrentIndex)
         .environmentObject(subscriptionManager)
     case .favorites:
       FavoritesListView(appearance: appearance)
@@ -161,20 +165,54 @@ struct ContentView: View {
         if lockedDragDirection == nil {
           let absW = abs(value.translation.width)
           let absH = abs(value.translation.height)
-          // Require clear horizontal intent (≥1.5x vertical) to claim
-          // the drag for tab switching; otherwise treat as vertical
-          // and stay out of the way.
-          lockedDragDirection = absW > absH * 1.5 ? .horizontal : .vertical
+
+          // Hard-block: any meaningful vertical movement disqualifies
+          // horizontal — vertical wins ties and near-ties, since
+          // misfiring the tab gesture during a vertical list scroll
+          // is much more annoying than missing a borderline swipe.
+          if absH > 15 {
+            lockedDragDirection = .vertical
+          } else if absW > 35 && absW > absH * 3 {
+            // Horizontal needs a deliberate, mostly-pure horizontal
+            // gesture: at least 35pt of horizontal travel AND ≥3x
+            // the vertical component. Anything less is treated as
+            // "still observing" and the gesture stays dormant until
+            // intent becomes clearer.
+            lockedDragDirection = .horizontal
+          } else {
+            return
+          }
         }
 
         guard lockedDragDirection == .horizontal else { return }
         isInteracting = true
-        translation = value.translation.width
+        // Skip horizontal feedback entirely when the user is dragging
+        // past the first or last tab — there's no target tab to switch
+        // to, and any rubber-band offset combines with the simultaneous
+        // vertical ScrollView scroll inside Favorites/Explore to read
+        // as the whole page drifting diagonally. We keep `isInteracting`
+        // set so taps on the tab bar still get suppressed mid-drag, but
+        // `translation` stays at 0 so the page doesn't move.
+        let raw = value.translation.width
+        let isOverscroll =
+          (raw < 0 && currentView.next() == nil) ||
+          (raw > 0 && currentView.previous() == nil)
+        guard !isOverscroll else { return }
+        translation = raw
       }
       .onEnded { value in
         defer { lockedDragDirection = nil }
 
-        if lockedDragDirection == .horizontal {
+        // Only commit a tab switch if the drag was locked horizontal
+        // *or* the released gesture is unambiguously horizontal
+        // (avoids missing fast, decisive swipes that flew past the
+        // 35pt observation window without setting the lock).
+        let absW = abs(value.translation.width)
+        let absH = abs(value.translation.height)
+        let releasedHorizontal = lockedDragDirection == .horizontal
+          || (absW > 60 && absW > absH * 3)
+
+        if releasedHorizontal {
           let threshold: CGFloat = 60
           let dragWidth = value.translation.width
           if dragWidth < -threshold {
