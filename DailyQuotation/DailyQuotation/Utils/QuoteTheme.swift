@@ -233,8 +233,6 @@ enum QuoteTheme: String, Codable, CaseIterable {
 
   /// Legacy API: only meaningful for gradient themes. Returns the
   /// first palette as a flat color list (image themes return `[]`).
-  /// Used by `GradientColors.gradients.count` calculations that
-  /// pre-date themes.
   var colors: [[Color]] {
     switch kind {
     case .gradient(let palettes): return palettes

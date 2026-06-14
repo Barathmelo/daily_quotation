@@ -8,20 +8,35 @@ import SwiftUI
 struct QuoteDetailView: View {
   let quote: Quote
   let gradientIndex: Int
+  /// Optional appearance snapshot passed in by the Favorites tab so a
+  /// saved card is replayed with the font/size/theme the user had
+  /// active when they tapped the heart. `nil` for all other entry
+  /// points (Explore "Today's Pick", category lists, author lists),
+  /// which fall back to the global `AppearanceManager` settings and
+  /// the pre-existing serif rendering.
+  let appearanceOverride: AppearanceSettings?
 
   @EnvironmentObject private var subscriptionManager: RevenueCatManager
   @ObservedObject private var favoritesManager = FavoritesManager.shared
   @ObservedObject private var appearanceManager = AppearanceManager.shared
 
   @State private var showShareSheet = false
+  @State private var showingPaywall = false
   @State private var copied = false
 
+  /// The appearance source the view should render against: snapshot
+  /// when one was supplied, otherwise the live global settings.
+  private var effectiveAppearance: AppearanceSettings {
+    appearanceOverride ?? appearanceManager.settings
+  }
+
   private var theme: QuoteTheme {
-    appearanceManager.settings.theme
+    effectiveAppearance.theme
   }
 
   init(quote: Quote) {
     self.quote = quote
+    self.appearanceOverride = nil
     // The Feed picks gradients by feed position; detail-view quotes
     // arrive without a position, so derive a stable bucket from the
     // first 4 hex chars of the stable id. This keeps the same quote
@@ -32,15 +47,26 @@ struct QuoteDetailView: View {
     self.gradientIndex = Int(value) % max(QuoteTheme.midnight.colors.count, 1)
   }
 
+  /// Snapshot entry point used by the Favorites tab. The caller
+  /// supplies the exact appearance + gradient index that were active
+  /// when the quote was saved, so the detail view re-creates that
+  /// visual instead of using the user's current global settings.
+  init(quote: Quote, appearance: AppearanceSettings, gradientIndex: Int) {
+    self.quote = quote
+    self.appearanceOverride = appearance
+    self.gradientIndex = gradientIndex
+  }
+
   private var isFavorite: Bool {
     favoritesManager.isFavorite(quote)
   }
 
   /// Mirrors the Feed card's length-based shrink so a 160-char quote doesn't
-  /// crowd this single-card detail view either. Detail uses a fixed 26pt
-  /// base because it has no per-screen typography controls.
+  /// crowd this single-card detail view either. When a snapshot is
+  /// supplied we honor its `TextSize`; otherwise we keep the original
+  /// 26pt detail-view default.
   private var adaptiveQuoteFontSize: CGFloat {
-    let base: CGFloat = 26
+    let base: CGFloat = appearanceOverride?.size.fontSize ?? 26
     let length = quote.text.count
     let scale: CGFloat
     switch length {
@@ -52,6 +78,15 @@ struct QuoteDetailView: View {
     return base * scale
   }
 
+  /// Font used to render the quote body. Snapshot mode uses the saved
+  /// `FontFamily`; other entry points keep the legacy serif design.
+  private var quoteFont: Font {
+    if let override = appearanceOverride {
+      return override.font.font(size: adaptiveQuoteFontSize)
+    }
+    return .system(size: adaptiveQuoteFontSize, weight: .regular, design: .serif)
+  }
+
   var body: some View {
     ZStack {
       theme.background(for: gradientIndex)
@@ -61,7 +96,7 @@ struct QuoteDetailView: View {
         Spacer()
 
         Text("\u{201C}\(quote.text)\u{201D}")
-          .font(.system(size: adaptiveQuoteFontSize, weight: .regular, design: .serif))
+          .font(quoteFont)
           .foregroundColor(.white)
           .multilineTextAlignment(.center)
           .lineSpacing(max(4, adaptiveQuoteFontSize * 0.28))
@@ -101,8 +136,22 @@ struct QuoteDetailView: View {
         quote: quote,
         gradientIndex: gradientIndex,
         theme: theme,
-        isPremium: subscriptionManager.isPremiumUser
+        font: effectiveAppearance.font,
+        isPremium: subscriptionManager.isPremiumUser,
+        onRequirePaywall: {
+          // Mirror QuoteSlideView: dismiss the share sheet first so its
+          // exit animation completes, otherwise SwiftUI silently drops
+          // the second sheet presentation in the same frame.
+          showShareSheet = false
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            showingPaywall = true
+          }
+        }
       )
+    }
+    .sheet(isPresented: $showingPaywall) {
+      PaywallView()
+        .environmentObject(subscriptionManager)
     }
   }
 
@@ -147,7 +196,15 @@ struct QuoteDetailView: View {
       isPremium: subscriptionManager.isPremiumUser
     )
     if allowed {
-      favoritesManager.toggleFavorite(quote)
+      // Use the effective appearance + active gradient index as the
+      // snapshot. If we got here via Favorites tap (with an override),
+      // re-toggling will restore the same visual; otherwise we capture
+      // the user's current global settings.
+      favoritesManager.toggleFavorite(
+        quote,
+        appearance: effectiveAppearance,
+        gradientIndex: gradientIndex
+      )
     }
   }
 

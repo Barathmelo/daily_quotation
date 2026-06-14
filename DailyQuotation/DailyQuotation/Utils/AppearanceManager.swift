@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import WidgetKit
 
 class AppearanceManager: ObservableObject {
 
@@ -27,6 +28,11 @@ class AppearanceManager: ObservableObject {
   func saveSettings() {
     guard let data = try? JSONEncoder().encode(settings) else { return }
     defaults.set(data, forKey: storageKey)
+    // The widget reads appearance from this same SharedDefaults entry,
+    // so we need to nudge WidgetKit to re-evaluate the timeline.
+    // Without this, theme/font/size changes only reach the widget on
+    // its next scheduled refresh (00:05 next day) — visibly stale.
+    WidgetCenter.shared.reloadAllTimelines()
   }
 
   func updateSettings(_ newSettings: AppearanceSettings) {

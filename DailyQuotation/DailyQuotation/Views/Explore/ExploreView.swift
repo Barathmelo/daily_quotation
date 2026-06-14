@@ -6,20 +6,30 @@ import SwiftUI
 /// Calendar entry.
 struct ExploreView: View {
   @EnvironmentObject private var subscriptionManager: RevenueCatManager
+  /// Mirrors `ContentView.feedCurrentIndex` so "Today's Pick" follows
+  /// whichever quote the user is currently looking at on Feed (after
+  /// any number of refresh taps), not just position 0.
+  @Binding var feedCurrentIndex: Int
 
   @State private var navigationPath = NavigationPath()
   @State private var showingHistory = false
   @State private var showingPaywall = false
+  /// Signaled by `ContentView` while a horizontal tab-switch drag is
+  /// in flight. We mirror it onto the outer `ScrollView`'s
+  /// `.scrollDisabled` so the page can't rubber-band vertically while
+  /// it's already being translated sideways.
+  @Environment(\.isHorizontalTabSwipeActive) private var isHorizontalTabSwipeActive
 
   private let index = QuoteIndex.shared
 
-  /// "Today's Pick" mirrors the first card the user would see on Feed
-  /// today, which depends on subscription tier (free users see a
-  /// different daily rotation than premium users). Constructing the
-  /// view-model is cheap and gives us a single source of truth for the
-  /// rotation algorithm.
+  /// "Today's Pick" mirrors the card the user is currently looking at
+  /// on Feed. With the new refresh model, that may not be position 0
+  /// anymore — if they've refreshed N times today they're on position N.
   private var todaysQuote: Quote? {
-    FeedViewModel(isPremium: subscriptionManager.isPremiumUser).quote(at: 0)
+    // Always construct with isPremium=true so the viewmodel exposes the
+    // full 20-quote rotation, matching FeedView. The actual visibility
+    // gating happens in FeedView via AccessControl, not here.
+    FeedViewModel(isPremium: true).quote(at: feedCurrentIndex)
   }
 
   var body: some View {
@@ -37,6 +47,7 @@ struct ExploreView: View {
         .padding(.top, 60)
         .readableWidth()
       }
+      .scrollDisabled(isHorizontalTabSwipeActive)
       .background(Color.black.ignoresSafeArea())
       .navigationBarHidden(true)
       .navigationDestination(for: NavTarget.self) { target in
@@ -221,18 +232,18 @@ struct ExploreView: View {
   private func quoteRow(_ q: Quote) -> some View {
     VStack(alignment: .leading, spacing: 8) {
       Text("\u{201C}\(q.text)\u{201D}")
-        .font(.system(size: 15, weight: .medium, design: .serif))
+        .font(.system(size: 17, weight: .medium, design: .serif))
         .foregroundStyle(.white)
         .lineLimit(3)
         .multilineTextAlignment(.leading)
       HStack {
         Text(q.author.uppercased())
-          .font(.system(size: 11, weight: .semibold))
+          .font(.system(size: 12, weight: .semibold))
           .tracking(1)
           .foregroundStyle(.white.opacity(0.5))
         if let category = q.category, !category.isEmpty {
           Text("• \(category.capitalized)")
-            .font(.system(size: 11))
+            .font(.system(size: 12))
             .foregroundStyle(.white.opacity(0.35))
         }
         Spacer()

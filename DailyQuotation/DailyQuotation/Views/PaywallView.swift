@@ -79,6 +79,17 @@ struct PaywallView: View {
       Button("Close") { dismiss() }
         .buttonStyle(.plain)
         .foregroundStyle(.white.opacity(0.6))
+
+      // Required by App Store Guideline 3.1.2: legal links must be
+      // accessible regardless of whether the paywall offering loaded.
+      HStack(spacing: 16) {
+        Link("Terms of Use", destination: DailyQuoteConfig.termsOfUseURL)
+        Text("·").foregroundStyle(.white.opacity(0.3))
+        Link("Privacy Policy", destination: DailyQuoteConfig.privacyPolicyURL)
+      }
+      .font(.caption)
+      .foregroundStyle(.white.opacity(0.5))
+      .padding(.top, 8)
     }
     .padding()
     .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -108,3 +108,28 @@ private struct HorizontalDragClaimModifier: ViewModifier {
       .preference(key: HorizontalDragClaimedPreferenceKey.self, value: isDragging)
   }
 }
+
+// MARK: - Horizontal tab swipe in flight (parent → child)
+
+/// Environment flag set by `ContentView` while the user is mid-way
+/// through a horizontal tab-switch drag. Vertical `ScrollView`s on the
+/// destination pages read this and bind it to `.scrollDisabled` so the
+/// page can't simultaneously rubber-band downward while it's already
+/// being translated sideways.
+///
+/// Crucially this stays `true` from the moment the parent gesture locks
+/// horizontal until the finger actually lifts — including after a mid-
+/// drag disqualification that snaps `translation` back to 0. Without
+/// that, the user could "release" the horizontal commit by adding
+/// vertical motion and then have the ScrollView take over the still-
+/// active touch, producing the offset-plus-bounce artifact.
+private struct HorizontalTabSwipeActiveKey: EnvironmentKey {
+  static let defaultValue: Bool = false
+}
+
+extension EnvironmentValues {
+  var isHorizontalTabSwipeActive: Bool {
+    get { self[HorizontalTabSwipeActiveKey.self] }
+    set { self[HorizontalTabSwipeActiveKey.self] = newValue }
+  }
+}

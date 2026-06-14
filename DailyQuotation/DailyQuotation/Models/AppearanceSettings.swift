@@ -32,7 +32,8 @@ enum FontFamily: String, Codable, CaseIterable {
         case .serif:  return .system(size: size, design: .serif)
         case .didot:  return .custom("Didot", size: size)
         case .futura: return .custom("Futura", size: size)
-        case .savoye: return .custom("Savoye LET", size: size)
+        // Savoye LET 的 x-height 偏小，放大 20% 以匹配其他字体的视觉大小
+        case .savoye: return .custom("Savoye LET", size: size * 1.2)
         case .menlo:  return .custom("Menlo", size: size)
         }
     }

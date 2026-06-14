@@ -91,7 +91,14 @@ struct HistoryFeedView: View {
         isPremium: subscriptionManager.isPremiumUser,
         onRequirePaywall: {},
         onToggleFavorite: {
-          favoritesManager.toggleFavorite(quote)
+          // Snapshot the active appearance + slide index, mirroring
+          // FeedView so favorites added from the history view replay
+          // with the same visual fidelity later.
+          favoritesManager.toggleFavorite(
+            quote,
+            appearance: appearanceManager.settings,
+            gradientIndex: rawIndex
+          )
         },
         appearance: appearanceBinding
       )

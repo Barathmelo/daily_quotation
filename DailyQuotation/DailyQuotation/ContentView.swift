@@ -20,6 +20,14 @@ struct ContentView: View {
   /// horizontal then introduced vertical motion). While `true`, the
   /// rest of the drag is ignored and onEnded doesn't switch tabs.
   @State private var dragDisqualified = false
+  /// `true` from the moment a drag locks horizontal until the finger
+  /// truly lifts. Propagated down via Environment so destination pages
+  /// can `.scrollDisabled` their vertical ScrollView and stop the
+  /// "page is shifted sideways AND scroll-view rubber-bands down at
+  /// the same time" artifact. Unlike `isInteracting`, this stays
+  /// `true` even after a mid-drag disqualification, because the touch
+  /// is still active and would otherwise leak into the inner ScrollView.
+  @State private var isHorizontalSwipeActive = false
 
   init() {
     DailyQuoteSync.syncTodayIfNeeded()
@@ -79,6 +87,7 @@ struct ContentView: View {
   // MARK: - Content Layer with Gesture
   private var contentLayer: some View {
     tabContentLayer
+      .environment(\.isHorizontalTabSwipeActive, isHorizontalSwipeActive)
       .offset(x: translation)
       .animation(translationSpring, value: translation)
       .simultaneousGesture(dragGesture)
@@ -194,6 +203,9 @@ struct ContentView: View {
           let ratio: CGFloat = strict ? 3 : 1.2
           if absW > widthThreshold && absW > absH * ratio {
             lockedDragDirection = .horizontal
+            // Mark the swipe as in-flight so destination pages disable
+            // their vertical ScrollView for the rest of this touch.
+            isHorizontalSwipeActive = true
           } else if !strict && absH > absW * 1.5 {
             // Lenient page can still lock vertical if the gesture is
             // obviously vertical, so we don't accidentally translate
@@ -240,6 +252,11 @@ struct ContentView: View {
         defer {
           lockedDragDirection = nil
           dragDisqualified = false
+          // Only clear the swipe-active flag when the finger truly
+          // lifts. Resetting on disqualify mid-drag would re-enable
+          // the destination's ScrollView while the touch is still
+          // active and let it rubber-band downward.
+          isHorizontalSwipeActive = false
         }
 
         // Disqualified drags never switch tabs; just clean up.

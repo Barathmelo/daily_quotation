@@ -53,6 +53,7 @@ struct QuoteSlideView: View {
         quote: quote,
         gradientIndex: index,
         theme: appearance.theme,
+        font: appearance.font,
         isPremium: isPremium,
         onRequirePaywall: {
           // Dismiss share sheet first; let it animate out before the
@@ -400,19 +401,32 @@ struct QuoteSlideView: View {
       ForEach(ThemeCategory.allCases, id: \.self) { category in
         let themes = QuoteTheme.themes(in: category)
         if !themes.isEmpty {
-          themeCategoryRow(title: category.displayName, themes: themes)
+          themeCategoryRow(
+            title: category.displayName,
+            themes: themes,
+            // .colors is the only free category — everything else
+            // shows a lock and triggers paywall on tap for free users.
+            isLocked: category != .colors && !isPremium
+          )
         }
       }
     }
   }
 
-  private func themeCategoryRow(title: String, themes: [QuoteTheme]) -> some View {
+  private func themeCategoryRow(title: String, themes: [QuoteTheme], isLocked: Bool) -> some View {
     VStack(alignment: .leading, spacing: 10) {
-      Text(title)
-        .font(.system(size: 11, weight: .semibold))
-        .tracking(1)
-        .foregroundColor(.white.opacity(0.4))
-        .padding(.leading, 2)
+      HStack(spacing: 6) {
+        Text(title)
+          .font(.system(size: 11, weight: .semibold))
+          .tracking(1)
+          .foregroundColor(.white.opacity(0.4))
+        if isLocked {
+          Image(systemName: "lock.fill")
+            .font(.system(size: 9))
+            .foregroundStyle(.yellow.opacity(0.85))
+        }
+      }
+      .padding(.leading, 2)
       ScrollView(.horizontal, showsIndicators: false) {
         HStack(spacing: 14) {
           ForEach(themes, id: \.self) { theme in
@@ -427,8 +441,14 @@ struct QuoteSlideView: View {
 
   private func themeButton(for theme: QuoteTheme) -> some View {
     let isSelected = appearance.theme == theme
+    let isAccessible = AccessControl.shared.canUseTheme(theme: theme, isPremium: isPremium)
 
     return Button {
+      guard isAccessible else {
+        HapticManager.warning()
+        onRequirePaywall()
+        return
+      }
       withAnimation(.easeOut(duration: 0.18)) {
         appearance.theme = theme
         HapticManager.selection()
@@ -442,11 +462,20 @@ struct QuoteSlideView: View {
                 .stroke(Color.white.opacity(isSelected ? 0.85 : 0.12), lineWidth: isSelected ? 2 : 1)
             )
             .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 3)
+            // Locked premium themes get a subtle desaturation + dim
+            // overlay so they read as "preview only" without hiding
+            // the swatch entirely.
+            .opacity(isAccessible ? 1.0 : 0.55)
           if isSelected {
             Image(systemName: "checkmark")
               .font(.system(size: 16, weight: .bold))
               .foregroundColor(.white)
               .shadow(color: .black.opacity(0.5), radius: 3)
+          } else if !isAccessible {
+            Image(systemName: "lock.fill")
+              .font(.system(size: 14, weight: .bold))
+              .foregroundColor(.white)
+              .shadow(color: .black.opacity(0.6), radius: 3)
           }
         }
       }

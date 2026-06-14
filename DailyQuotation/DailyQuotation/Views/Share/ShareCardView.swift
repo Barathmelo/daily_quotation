@@ -14,6 +14,10 @@ struct ShareCardView: View {
   let quote: Quote
   let gradientIndex: Int
   let theme: QuoteTheme
+  /// Typeface used to render the quote body. Carries over the user's
+  /// in-app Appearance selection so the shared image matches what they
+  /// see on Feed.
+  let font: FontFamily
   let includeWatermark: Bool
 
   // MARK: - Body
@@ -31,7 +35,8 @@ struct ShareCardView: View {
           .padding(.bottom, 24)
 
         Text(quote.text)
-          .font(.system(size: quoteFontSize, weight: .medium, design: .serif))
+          .font(font.font(size: quoteFontSize))
+          .fontWeight(.medium)
           .foregroundColor(.white)
           .multilineTextAlignment(.center)
           .lineSpacing(quoteFontSize * 0.18)
