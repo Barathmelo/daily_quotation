@@ -30,19 +30,8 @@ enum DailyQuoteConfig {
 
   // MARK: - Support / Marketing URLs
   //
-  // These power the Settings → Support section (Rate / Share).
-  // Replace the placeholders below once the App Store listing is live.
-
-  /// Public App Store listing for share / marketing flows.
-  // TODO: Replace `idXXXXXXXXX` with the real numeric Apple ID after launch.
-  static let appStoreURL = URL(string: "https://apps.apple.com/app/idXXXXXXXXX")!
-
-  /// Deep link that lands directly on the App Store review form. The
-  /// `?action=write-review` query is the documented way to request a
-  /// rating without going through `SKStoreReviewController`'s rate-limited
-  /// modal. Same `idXXXXXXXXX` placeholder applies.
-  // TODO: Replace `idXXXXXXXXX` with the real numeric Apple ID after launch.
-  static let appStoreReviewURL = URL(
-    string: "https://apps.apple.com/app/idXXXXXXXXX?action=write-review"
-  )!
+  // App Store rating / share URLs intentionally omitted pre-launch:
+  // the numeric Apple ID is only available after the listing exists.
+  // Re-introduce `appStoreURL` and `appStoreReviewURL` here, and wire the
+  // Settings → Support section, once we have the real ID.
 }

@@ -110,8 +110,10 @@ struct FeedView: View {
       syncCurrentQuoteToWidget()
     }
     .onChange(of: currentDayOfYear) { _ in
-      // New day → restart on the fresh "Quote of the Day" and replenish
-      // the refresh counter.
+      // New day → re-pin viewmodel to today (so `todayOrder` rebuilds
+      // for the new date), restart on the fresh "Quote of the Day", and
+      // replenish the refresh counter.
+      viewModel.updateReferenceDate(Date())
       viewModel.currentPosition = 0
       persistedIndex = 0
       AccessControl.shared.resetIfNeeded()
@@ -205,7 +207,27 @@ struct FeedView: View {
 
   private func handleAppear() {
     AccessControl.shared.resetIfNeeded()
-    viewModel.currentPosition = clamp(persistedIndex)
+    // Detect cross-midnight when the user returns to Feed from another
+    // tab: re-pin the rotation to today and snap back to position 0.
+    // `.onChange(of: currentDayOfYear)` doesn't fire while the Feed
+    // isn't on screen, so this onAppear path is the second safety net.
+    let now = Date()
+    if !Calendar.current.isDate(viewModel.referenceDate, inSameDayAs: now) {
+      viewModel.updateReferenceDate(now)
+      viewModel.currentPosition = 0
+      persistedIndex = 0
+    } else {
+      // `refreshesUsedToday` is the persisted source of truth for
+      // "how far the user has advanced today" (every refresh tap
+      // increments it by 1 in lock-step with `currentPosition`). The
+      // in-memory `persistedIndex` resets across App kills, so always
+      // rebase on the persisted counter to survive cold-starts;
+      // otherwise Feed snaps back to "Quote of the Day" after a kill
+      // even though Widget kept the post-refresh quote.
+      let restored = AccessControl.shared.refreshesUsedToday
+      viewModel.currentPosition = restored
+      persistedIndex = restored
+    }
     remainingRefreshes = AccessControl.shared
       .remainingRefreshes(isPremium: subscriptionManager.isPremiumUser)
     // First entry into Feed in this session — push the current quote

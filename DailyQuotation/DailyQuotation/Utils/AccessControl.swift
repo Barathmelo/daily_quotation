@@ -11,7 +11,12 @@ final class AccessControl {
   /// How many refreshes a premium subscriber gets per day.
   private let premiumDailyRefreshLimit = 5
 
-  private let storage = UserDefaults.standard
+  // App Group-backed so the daily refresh counter survives App
+  // reinstall (which would otherwise wipe `UserDefaults.standard` and
+  // hand free users a fresh quota every time they reinstall). Lines up
+  // with FavoritesManager / AppearanceManager / ReminderPreferences
+  // which all already share the same suite.
+  private let storage = SharedDefaults.store
   private let refreshCountKey = "dailyRefreshCount"
   private let refreshDateKey = "dailyRefreshDate"
 

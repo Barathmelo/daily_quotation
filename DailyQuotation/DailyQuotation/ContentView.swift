@@ -7,7 +7,7 @@ struct ContentView: View {
   @State private var transitionDirection: TabTransitionDirection = .forward
   @State private var translation: CGFloat = 0
   @State private var isInteracting = false
-  @State private var feedCurrentIndex: Int = 0
+  @State private var feedCurrentIndex: Int
   @State private var showPaywall = false
   @State private var isTabBarHidden = false
   /// `true` while a descendant horizontal ScrollView is actively being
@@ -35,6 +35,17 @@ struct ContentView: View {
     // the History Calendar can later forbid picking days before the
     // user actually started using the app.
     FirstLaunchTracker.recordIfNeeded()
+    // Restore the Feed position the user advanced to via refresh taps
+    // in the previous session. `AccessControl.refreshesUsedToday` is
+    // persisted in the App Group (each refresh tap increments it by 1
+    // *and* advances `currentPosition` by 1, so position ≡ used). The
+    // in-memory `feedCurrentIndex` would otherwise reset to 0 on
+    // cold-start and snap Feed back to "Quote of the Day", reverting
+    // what the user last saw — and also leaving Explore's "Today's
+    // Pick" desynced from Feed.
+    _feedCurrentIndex = State(
+      initialValue: AccessControl.shared.refreshesUsedToday
+    )
   }
 
   private let tabSwitchAnimation = Animation.easeInOut(duration: 0.28)

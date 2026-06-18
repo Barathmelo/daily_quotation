@@ -9,8 +9,11 @@ import SwiftUI
 /// 2. Daily Reminder (toggle + time picker, local UNCalendarNotification).
 /// 3. Subscription (Manage Subscription + Restore Purchases).
 /// 4. Widget hint (collapsible step-by-step on adding the home-screen widget).
-/// 5. Support (Rate / Feedback / Share App).
-/// 6. About (version, Terms, Privacy).
+/// 5. About (version, Terms, Privacy).
+///
+/// Support section (Rate / Share App) is intentionally omitted pre-launch
+/// — both flows need the numeric Apple ID, which only exists once the
+/// listing is live. Add it back via `DailyQuoteConfig.appStoreURL`.
 ///
 /// History Calendar lives in the Explore tab (single source of truth).
 struct SettingsSheet: View {
@@ -48,7 +51,6 @@ struct SettingsSheet: View {
         reminderSection
         subscriptionSection
         widgetSection
-        supportSection
         aboutSection
       }
       .navigationTitle("Settings")
@@ -274,21 +276,6 @@ struct SettingsSheet: View {
         .font(.callout)
         .foregroundStyle(.primary)
         .fixedSize(horizontal: false, vertical: true)
-    }
-  }
-
-  // MARK: - Support
-
-  @ViewBuilder
-  private var supportSection: some View {
-    Section("Support") {
-      Link(destination: DailyQuoteConfig.appStoreReviewURL) {
-        Label("Rate Quoteary", systemImage: "star")
-      }
-
-      ShareLink(item: DailyQuoteConfig.appStoreURL) {
-        Label("Share App", systemImage: "square.and.arrow.up")
-      }
     }
   }
 

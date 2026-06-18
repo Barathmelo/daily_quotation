@@ -288,19 +288,29 @@ struct QuoteSlideView: View {
   }
 
   private var settingsOverlay: some View {
-    Group {
+    // Wrap in a GeometryReader so the panel can size itself relative
+    // to the host view (not `UIScreen.main`, which is unreliable on
+    // iPad with multiple scenes / Split View). 60% of the host height
+    // is enough to fit Fonts + Size + Theme rows on iPhone while
+    // staying clear of the status bar / Dynamic Island.
+    GeometryReader { proxy in
       if showSettings {
-        overlayContainer
+        overlayContainer(maxPanelHeight: proxy.size.height * 0.6)
+          .frame(width: proxy.size.width, height: proxy.size.height, alignment: .bottom)
           .transition(.move(edge: .bottom).combined(with: .opacity))
           .animation(settingsAnimation, value: showSettings)
       }
     }
+    // Without `.ignoresSafeArea()` the GeometryReader sizes to safe
+    // area only, leaving a transparent band at the bottom that
+    // doesn't pick up the dim background tap-to-close gesture.
+    .ignoresSafeArea()
   }
 
-  private var overlayContainer: some View {
+  private func overlayContainer(maxPanelHeight: CGFloat) -> some View {
     ZStack(alignment: .bottom) {
       overlayBackground
-      appearancePanel
+      appearancePanel(maxHeight: maxPanelHeight)
     }
   }
 
@@ -312,7 +322,7 @@ struct QuoteSlideView: View {
       }
   }
 
-  private var appearancePanel: some View {
+  private func appearancePanel(maxHeight: CGFloat) -> some View {
     VStack(spacing: 0) {
       // Header sits outside the ScrollView so the close button stays
       // pinned and the title doesn't scroll under the rounded corner.
@@ -333,10 +343,10 @@ struct QuoteSlideView: View {
       .scrollBounceBehavior(.basedOnSize)
     }
     .frame(maxWidth: 520)
-    // Cap the panel height to ~60% of the screen so it never reaches
+    // Cap the panel height to ~60% of the host view so it never reaches
     // the status bar / dynamic island. The ScrollView absorbs anything
     // taller (currently the Theme rows are the long part).
-    .frame(maxHeight: UIScreen.main.bounds.height * 0.6)
+    .frame(maxHeight: maxHeight)
     .background(
       RoundedRectangle(cornerRadius: 32)
         .fill(Color.black.opacity(0.9))
@@ -434,6 +444,7 @@ struct QuoteSlideView: View {
           }
         }
         .padding(.horizontal, 2)
+        .padding(.vertical, 2)
       }
       .claimsHorizontalDrag()
     }
@@ -457,15 +468,16 @@ struct QuoteSlideView: View {
       VStack(spacing: 8) {
         ZStack {
           theme.previewSwatch(size: 48)
-            .overlay(
-              Circle()
-                .stroke(Color.white.opacity(isSelected ? 0.85 : 0.12), lineWidth: isSelected ? 2 : 1)
-            )
             .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 3)
             // Locked premium themes get a subtle desaturation + dim
             // overlay so they read as "preview only" without hiding
             // the swatch entirely.
             .opacity(isAccessible ? 1.0 : 0.55)
+          // Draw the selection ring outside the swatch so the stroke
+          // has room to render as a complete circle.
+          Circle()
+            .stroke(Color.white.opacity(isSelected ? 0.85 : 0.12), lineWidth: isSelected ? 2 : 1)
+            .frame(width: 52, height: 52)
           if isSelected {
             Image(systemName: "checkmark")
               .font(.system(size: 16, weight: .bold))

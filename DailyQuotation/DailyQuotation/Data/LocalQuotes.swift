@@ -16,9 +16,15 @@ struct LocalQuotes {
         return quotes
     }
     
-    // 支持无限循环：获取指定索引的名言（循环）
+    // 支持无限循环：获取指定索引的名言（循环）。
+    // Swift 的 `%` 对负数返回负数（例如 `-1 % 5 == -1`），裸用会越界崩溃。
+    // 这里用 `((index % count) + count) % count` 把任意整数（包含负数）
+    // 归一到 `[0, count)`，并对空数组返回 fallback，避免上层意外传值时崩。
     static func getQuote(at index: Int) -> Quote {
-        return quotes[index % quotes.count]
+        let count = quotes.count
+        guard count > 0 else { return .initial }
+        let safeIndex = ((index % count) + count) % count
+        return quotes[safeIndex]
     }
 }
 

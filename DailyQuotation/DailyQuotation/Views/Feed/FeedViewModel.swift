@@ -11,11 +11,15 @@ import SwiftUI
 final class FeedViewModel: ObservableObject {
   @Published var currentPosition: Int = 0
   @Published var furthestPosition: Int = 0
+  /// Anchor date for the 20-quote rotation. `@Published` so that the
+  /// hosting view re-renders (and `todayOrder` recomputes) when the
+  /// calling view re-pins the rotation to a new day — e.g. after the
+  /// app crosses midnight while still on the Feed tab.
+  @Published private(set) var referenceDate: Date
 
   let isPremium: Bool
 
   private let quotes: [Quote]
-  private let referenceDate: Date
   private let maxDailyQuotes = 20
   private let freeScrollAllowance = 1
 
@@ -27,6 +31,18 @@ final class FeedViewModel: ObservableObject {
     self.isPremium = isPremium
     self.referenceDate = referenceDate
     self.quotes = quotes ?? LocalQuotes.quotes
+  }
+
+  /// Re-pin the rotation to the given date.
+  ///
+  /// `FeedView` calls this when it detects that the calendar day has
+  /// changed since the view model was constructed (the user left the
+  /// Feed on screen across midnight). Without this, `todayOrder` stays
+  /// frozen on yesterday's sequence and position 0 reads as yesterday's
+  /// "Quote of the Day". `HistoryFeedView` deliberately *does not* call
+  /// this so historical days stay pinned.
+  func updateReferenceDate(_ date: Date) {
+    referenceDate = date
   }
 
   // MARK: - Derived state
